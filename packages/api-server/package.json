@@ -3,13 +3,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "DEBUG=* ts-node src/index.ts"
+    "dev": "DEBUG=* tsx  src/index.ts"
   },
   "dependencies": {
-    "debug": "^4.4.3"
+    "@radioterio/common": "*",
+    "debug": "^4.4.3",
+    "express": "^5.1.0",
+    "inversify": "^7.10.2",
+    "knex": "^3.1.0",
+    "mysql": "^2.18.1",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",
-    "ts-node": "^10.9.2"
+    "@types/express": "^5.0.3",
+    "tsx": "^4.20.6"
   }
 }

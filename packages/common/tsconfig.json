@@ -1,0 +1,16 @@
+{
+  "exclude": [
+    "lib"
+  ],
+  "include": [
+    "src/**/*.ts",
+  ],
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "baseUrl": ".",
+    "rootDir": "./src/",
+    "outDir": "./lib",
+    "types": ["node"]
+  }
+}
