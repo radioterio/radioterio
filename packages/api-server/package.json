@@ -1,0 +1,15 @@
+{
+  "name": "@radioterio/api-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "DEBUG=* ts-node src/index.ts"
+  },
+  "dependencies": {
+    "debug": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "ts-node": "^10.9.2"
+  }
+}
