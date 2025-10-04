@@ -28,6 +28,7 @@ export class UserRepository {
       .client<UserRow>(tableName)
       .where("uid", userId)
       .where("is_enabled", true)
+      .select("uid", "mail", "login", "password", "is_enabled")
       .first();
 
     if (!userRow) {
