@@ -48,7 +48,7 @@ export class ChannelTrackRepository {
   async getTracksByChannelIdAndUserId(channelId: number, userId: number): Promise<ChannelTrack[]> {
     const rows = await this.knex
       .client<TrackRow>(tracksTableName)
-      .leftJoin<LinkRow>(linksTableName, `track_id`, `tid`)
+      .join<LinkRow>(linksTableName, `track_id`, `tid`)
       .where("uid", userId)
       .where("stream_id", channelId)
       .orderBy("t_order", "asc")
