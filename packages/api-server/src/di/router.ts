@@ -3,7 +3,7 @@ import { injectable } from "inversify";
 import { jwtVerify } from "jose";
 
 import { Nominal } from "@radioterio/common/utils/types";
-import { ErrorKind } from "../errors/kind.js";
+import { ErrorKind } from "../errors/error-kind.js";
 import { ok } from "../errors/assert.js";
 import { getConfig } from "../app.js";
 import z from "zod";

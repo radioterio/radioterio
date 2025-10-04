@@ -1,4 +1,4 @@
-import { ErrorKind } from "./kind.js";
+import { ErrorKind } from "./error-kind.js";
 
 export class AppError extends Error {
   constructor(

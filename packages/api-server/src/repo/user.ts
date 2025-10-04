@@ -27,6 +27,7 @@ export class UserRepository {
     const userRow = await this.knex.client
       .from<UserRow, UserRow>(tableName)
       .where("uid", userId)
+      .where("is_enabled", true)
       .first();
 
     if (!userRow) {

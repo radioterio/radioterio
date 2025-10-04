@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 
 import { AppAuthRequest, AuthRouteHandler } from "../../../di/router.js";
 import { User, UserRepository } from "../../../repo/user.js";
-import { ErrorKind } from "../../../errors/kind.js";
+import { ErrorKind } from "../../../errors/error-kind.js";
 import { ok } from "../../../errors/assert.js";
 
 @injectable()

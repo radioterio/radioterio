@@ -1,4 +1,4 @@
-import { ErrorKind } from "./kind.js";
+import { ErrorKind } from "./error-kind.js";
 import { AppError } from "./app-error.js";
 
 export function ok<T>(exp: T | undefined | null, kind: ErrorKind, message?: string): asserts exp {
