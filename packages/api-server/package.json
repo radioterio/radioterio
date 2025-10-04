@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "DEBUG=* dotenvx run -- tsx src/index.ts"
+    "start": "node dist/index.js",
+    "dev": "DEBUG=* dotenvx run -- tsx src/index.ts",
+    "build": "tsc --build ./tsconfig.json"
   },
   "dependencies": {
     "@radioterio/common": "*",
@@ -20,7 +22,6 @@
     "@dotenvx/dotenvx": "^1.51.0",
     "@types/debug": "^4.1.12",
     "@types/express": "^5.0.3",
-    "ts-node": "^10.9.2",
     "tsx": "^4.20.6"
   }
 }
