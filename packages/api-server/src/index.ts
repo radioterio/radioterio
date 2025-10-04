@@ -1,13 +1,15 @@
 import makeDebug from "debug";
 
 import { Config } from "./config.js";
-import { makeApp } from "./app.js";
+import { createApp } from "./app.js";
+import { createContainer } from "./di/container.js";
 
 const debug = makeDebug("api-server");
 
 async function main() {
   const config = Config.fromEnv();
-  const app = makeApp(config);
+  const container = createContainer(config);
+  const app = createApp(config, container);
 
   const server = app.listen(config.port, (error) => {
     if (error) {
@@ -25,6 +27,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  debug("Unhandled error in main(): %O", error);
+  debug("Unhandled errors in main(): %O", error);
   process.exit(1);
 });

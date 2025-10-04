@@ -4,6 +4,7 @@ import { getEnvNumberValue, getEnvStringValue, getEnvValue } from "@radioterio/c
 type EnvLike = { [key: string]: string | undefined };
 
 export class Config {
+  readonly build: string | null;
   readonly port: number;
 
   readonly databaseUrl: string;
@@ -14,6 +15,7 @@ export class Config {
   readonly databasePoolMax: number;
 
   constructor(env: EnvLike) {
+    this.build = getEnvValue(env, "BUILD", string().nullish().default(null));
     this.port = getEnvNumberValue(env, "PORT", 4001);
 
     this.databaseUrl = getEnvStringValue(env, "DATABASE_URL");

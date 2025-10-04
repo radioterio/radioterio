@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./utils/config": "./lib/utils/config.js"
+    "./utils/config": "./lib/utils/config.js",
+    "./utils/types": "./lib/utils/types.js"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json"
