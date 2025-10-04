@@ -8,6 +8,7 @@ interface TrackRow {
   readonly tid: number;
   readonly filename: string;
   readonly ext: string;
+  readonly hash: string;
   readonly artist: string;
   readonly title: string;
   readonly duration: number;
@@ -24,21 +25,25 @@ interface LinkRow {
 export interface ChannelTrack {
   readonly id: number;
   readonly filename: string;
+  readonly hash: string;
+  readonly extension: string;
   readonly title: string;
   readonly artist: string;
   readonly duration: number;
   readonly offset: number;
 }
 
-type Fields = "tid" | "filename" | "title" | "artist" | "duration" | "time_offset";
+type Fields = "tid" | "filename" | "ext" | "hash" | "title" | "artist" | "duration" | "time_offset";
 
 const mapChannelTrack = (row: Pick<TrackRow & LinkRow, Fields>) => ({
   id: row.tid,
   filename: row.filename,
+  extension: row.ext,
   title: row.title,
   artist: row.artist,
   duration: row.duration,
   offset: row.time_offset,
+  hash: row.hash,
 });
 
 @injectable()
@@ -52,7 +57,7 @@ export class ChannelTrackRepository {
       .where("uid", userId)
       .where("stream_id", channelId)
       .orderBy("t_order", "asc")
-      .select("tid", "filename", "ext", "artist", "title", "duration", "time_offset");
+      .select("tid", "filename", "ext", "hash", "artist", "title", "duration", "time_offset");
 
     return rows.map(mapChannelTrack);
   }

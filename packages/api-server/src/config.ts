@@ -23,6 +23,7 @@ export class Config {
   readonly awsAccessKeyId: string;
   readonly awsSecretAccessKey: string;
   readonly awsS3Bucket: string;
+  readonly awsRegion: string;
 
   constructor(env: EnvLike) {
     this.build = getEnvValue(env, "BUILD", string().nullish().default(null));
@@ -38,6 +39,7 @@ export class Config {
     this.awsAccessKeyId = getEnvStringValue(env, "AWS_ACCESS_KEY_ID");
     this.awsSecretAccessKey = getEnvStringValue(env, "AWS_SECRET_ACCESS_KEY");
     this.awsS3Bucket = getEnvStringValue(env, "AWS_S3_BUCKET");
+    this.awsRegion = getEnvStringValue(env, "AWS_REGION");
   }
 
   static fromEnv(): Config {
