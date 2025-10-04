@@ -18,6 +18,8 @@ interface ChannelTrackWithUrl extends ChannelTrack {
 const getTrackPath = (track: ChannelTrack) =>
   `audio/${track.hash[0]}/${track.hash[1]}/${track.hash}.${track.extension}`;
 
+const TRACK_URL_EXPIRES_IN_SECONDS = 3600; // 1 hour
+
 @injectable()
 export class GetChannelsTracksController extends AuthRouteHandler<readonly ChannelTrackWithUrl[]> {
   constructor(
@@ -43,7 +45,11 @@ export class GetChannelsTracksController extends AuthRouteHandler<readonly Chann
       await Promise.all(
         channelTracks.map(async (track) => ({
           ...track,
-          trackUrl: await this.s3Client.getObjectUrl(config.awsS3Bucket, getTrackPath(track), 30),
+          trackUrl: await this.s3Client.getObjectUrl(
+            config.awsS3Bucket,
+            getTrackPath(track),
+            TRACK_URL_EXPIRES_IN_SECONDS,
+          ),
         })),
       ),
     );
