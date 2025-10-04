@@ -1,7 +1,7 @@
 import express from "express";
 import { Container } from "inversify";
 
-import { AuthRouteHandler, RouteHandler } from "./router.js";
+import { AuthRouteHandler, RouteHandler } from "./route-handler.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Ctor = new (...args: any[]) => RouteHandler<any> | AuthRouteHandler<any>;

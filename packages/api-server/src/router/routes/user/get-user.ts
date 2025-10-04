@@ -1,7 +1,7 @@
 import express from "express";
 import { inject, injectable } from "inversify";
 
-import { AppAuthRequest, AuthRouteHandler } from "../../../di/router.js";
+import { AppAuthRequest, AuthRouteHandler } from "../../route-handler.js";
 import { User, UserRepository } from "../../../repo/user.js";
 import { ErrorKind } from "../../../errors/error-kind.js";
 import { ok } from "../../../errors/assert.js";

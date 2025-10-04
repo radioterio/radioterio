@@ -1,12 +1,12 @@
 import express from "express";
 import { injectable } from "inversify";
 import { jwtVerify } from "jose";
+import z from "zod";
 
 import { Nominal } from "@radioterio/common/utils/types";
 import { ErrorKind } from "../errors/error-kind.js";
 import { ok } from "../errors/assert.js";
 import { getConfig } from "../app.js";
-import z from "zod";
 import { AppError } from "../errors/app-error.js";
 
 export type AppRequest = Nominal<express.Request, "Request">;

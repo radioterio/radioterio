@@ -2,7 +2,7 @@ import { injectable, inject } from "inversify";
 import { StatusCodes } from "http-status-codes";
 import express from "express";
 
-import { AppRequest, RouteHandler } from "../../di/router.js";
+import { AppRequest, RouteHandler } from "../route-handler.js";
 import { getConfig } from "../../app.js";
 import { KnexClient } from "../../db/knex.js";
 

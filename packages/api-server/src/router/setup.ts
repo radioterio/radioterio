@@ -1,6 +1,6 @@
 import { Application, Router } from "express";
 
-import { makeBind } from "../di/bind.js";
+import { makeBind } from "./bind.js";
 import { getContainer } from "../app.js";
 import { errorMiddleware } from "./middlewares/error.js";
 import { HealthRouteHandler } from "./routes/health.js";
