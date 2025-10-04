@@ -24,8 +24,8 @@ export class UserRepository {
   constructor(@inject(KnexClient) private readonly knex: KnexClient) {}
 
   async findOneById(userId: number): Promise<User | null> {
-    const userRow = await this.knex.client
-      .from<UserRow, UserRow>(tableName)
+    const userRow = await this.knex
+      .client<UserRow>(tableName)
       .where("uid", userId)
       .where("is_enabled", true)
       .first();
