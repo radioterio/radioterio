@@ -3,8 +3,8 @@ import { inject, injectable } from "inversify";
 
 import { AppAuthRequest, AuthRouteHandler } from "../../route-handler.js";
 import { User, UserRepository } from "../../../repo/user.js";
-import { ErrorKind } from "../../../errors/error-kind.js";
-import { ok } from "../../../errors/assert.js";
+import { ErrorKind } from "../../../error/error-kind.js";
+import { ok } from "../../../error/assert.js";
 
 @injectable()
 export class GetUserController extends AuthRouteHandler<User> {

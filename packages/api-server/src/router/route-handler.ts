@@ -4,10 +4,10 @@ import { jwtVerify } from "jose";
 import z from "zod";
 
 import { Nominal } from "@radioterio/common/utils/types";
-import { ErrorKind } from "../errors/error-kind.js";
-import { ok } from "../errors/assert.js";
+import { ErrorKind } from "../error/error-kind.js";
+import { ok } from "../error/assert.js";
 import { getConfig } from "../app.js";
-import { AppError } from "../errors/app-error.js";
+import { AppError } from "../error/app-error.js";
 
 export type AppRequest = Nominal<express.Request, "Request">;
 const makeAppRequest = (req: express.Request): AppRequest => req as AppRequest;

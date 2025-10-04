@@ -2,7 +2,7 @@ import { Application, Router } from "express";
 
 import { makeBind } from "./bind.js";
 import { getContainer } from "../app.js";
-import { errorMiddleware } from "./middlewares/error.js";
+import { errorMiddleware } from "./middleware/error.js";
 import { HealthRouteHandler } from "./routes/health.js";
 import { GetUserController } from "./routes/user/get-user.js";
 
