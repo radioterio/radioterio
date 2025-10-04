@@ -5,6 +5,7 @@ import { getContainer } from "../app.js";
 import { errorMiddleware } from "./middleware/error.js";
 import { HealthRouteHandler } from "./routes/health.js";
 import { GetUserController } from "./routes/user/get-user.js";
+import { GetChannelsController } from "./routes/channel/get-channels.js";
 
 export function setupRouter(app: Application) {
   const router = Router();
@@ -12,6 +13,7 @@ export function setupRouter(app: Application) {
 
   router.get("/health", bind(HealthRouteHandler));
   router.get("/user", bind(GetUserController));
+  router.get("/channels", bind(GetChannelsController));
 
   router.use(errorMiddleware);
 
