@@ -1,6 +1,6 @@
 {
   "exclude": [
-    "lib"
+    "dist"
   ],
   "include": [
     "src/**/*.ts",
@@ -9,10 +9,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": "./src/",
-    "outDir": "./lib",
-    "types": ["node"],
+    "outDir": "./dist",
+    "types": ["reflect-metadata", "node"],
 
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "experimentalDecorators": true
   }
 }

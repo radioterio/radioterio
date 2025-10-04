@@ -8,7 +8,8 @@ type Ctor = new (...args: any[]) => RouteHandler<any>;
 
 export const makeBind = (container: Container) => {
   return (Ctor: Ctor): express.RequestHandler => {
-    container.bind(Ctor).toSelf().inSingletonScope();
+    container.bind(Ctor).toSelf();
+
     const requestHandler = container.get(Ctor);
 
     return requestHandler.run.bind(requestHandler);
