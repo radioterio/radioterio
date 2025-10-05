@@ -2,9 +2,10 @@ import express from "express";
 import { inject, injectable } from "inversify";
 
 import { AppAuthRequest, AuthRouteHandler } from "../../route-handler.js";
-import { Channel, ChannelRepository, ChannelStatus } from "../../../repo/channel.js";
+import { ChannelRepository, ChannelStatus } from "../../../repo/channel.js";
 import { S3Client } from "../../../fs/s3.js";
 import { getConfig } from "../../../app.js";
+import { getCoverPath } from "../../../fs/filepath-mapper.js";
 
 interface ChannelOutput {
   readonly id: number;
@@ -13,10 +14,6 @@ interface ChannelOutput {
   readonly coverFileUrl: string | null;
   readonly coverBackgroundColor: string | null;
 }
-
-const getCoverPath = (channel: Channel) => `covers/${channel.coverFile}`;
-
-const COVER_FILE_URL_EXPIRES_IN_SECONDS = 3600; // 1 hour
 
 @injectable()
 export class GetChannelsController extends AuthRouteHandler<readonly ChannelOutput[]> {
@@ -39,11 +36,7 @@ export class GetChannelsController extends AuthRouteHandler<readonly ChannelOutp
         id: channel.id,
         title: channel.title,
         status: channel.status,
-        coverFileUrl: await this.s3Client.getObjectUrl(
-          config.awsS3Bucket,
-          getCoverPath(channel),
-          COVER_FILE_URL_EXPIRES_IN_SECONDS,
-        ),
+        coverFileUrl: await this.s3Client.getObjectUrl(config.awsS3Bucket, getCoverPath(channel)),
         coverBackgroundColor: channel.coverBackgroundColor,
       })),
     );

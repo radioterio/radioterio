@@ -4,17 +4,21 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { Config } from "../config.js";
 
+export const PRESIGNED_URL_EXPIRES_IN_SECONDS = 3600; // 1 hr
+
 @injectable()
 export class S3Client {
   constructor(readonly client: AwsS3Client) {}
 
-  public getObjectUrl(bucket: string, key: string, expiresIn: number): Promise<string> {
+  public getObjectUrl(bucket: string, key: string, expiresIn?: number): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: bucket,
       Key: key,
     });
 
-    return getSignedUrl(this.client, command, { expiresIn });
+    return getSignedUrl(this.client, command, {
+      expiresIn: expiresIn ?? PRESIGNED_URL_EXPIRES_IN_SECONDS,
+    });
   }
 }
 
