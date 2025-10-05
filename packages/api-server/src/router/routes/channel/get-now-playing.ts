@@ -7,6 +7,7 @@ import { Channel, ChannelRepository, ChannelStatus } from "../../../repo/channel
 import { ErrorKind } from "../../../error/error-kind.js";
 import { ok } from "../../../error/assert.js";
 import { ChannelTrack, ChannelTrackRepository } from "../../../repo/channel-track.js";
+import { AppError } from "../../../error/app-error.js";
 
 const RouteParamsSchema = z.object({
   channelId: z.coerce.number().int(),
@@ -39,25 +40,33 @@ export class GetNowPlayingController extends AuthRouteHandler<NowPlaying> {
     ok(channel, ErrorKind.ChannelNotFound);
     ok(lastTrack, ErrorKind.ChannelNotPlaying, "Missing last track");
 
-    ok(
-      channel.status === ChannelStatus.Started,
-      ErrorKind.ChannelNotPlaying,
-      "Channel is not started",
-    );
-    ok(channel.startedAt, ErrorKind.ChannelNotPlaying, "Missing channel start time");
-    ok(
-      channel.startedFromPosition !== null,
-      ErrorKind.ChannelNotPlaying,
-      "Missing channel start position",
-    );
+    let playlistPos;
 
-    const timestampMillis = timestamp.getTime();
-    const startedAtMillis = channel.startedAt.getTime();
+    if (channel.status === ChannelStatus.Started) {
+      ok(channel.startedAt, ErrorKind.ChannelNotPlaying, "Missing channel start time");
+      ok(
+        channel.startedFromPosition !== null,
+        ErrorKind.ChannelNotPlaying,
+        "Missing channel start position",
+      );
 
-    const playlistDuration = lastTrack.offset + lastTrack.duration;
+      const timestampMillis = timestamp.getTime();
+      const startedAtMillis = channel.startedAt.getTime();
+      const playlistDuration = lastTrack.offset + lastTrack.duration;
+      const absolutePos = timestampMillis - startedAtMillis + channel.startedFromPosition;
 
-    const absolutePos = timestampMillis - startedAtMillis + channel.startedFromPosition;
-    const playlistPos = absolutePos % playlistDuration;
+      playlistPos = absolutePos % playlistDuration;
+    } else if (channel.status === ChannelStatus.Paused) {
+      ok(
+        channel.startedFromPosition !== null,
+        ErrorKind.ChannelNotPlaying,
+        "Missing channel start position",
+      );
+
+      playlistPos = channel.startedFromPosition;
+    } else {
+      throw AppError.fromErrorKind(ErrorKind.ChannelNotPlaying);
+    }
 
     const currentTrack = await this.channelTrackRepository.getTrackAtPosition(
       playlistPos,
