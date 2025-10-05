@@ -22,6 +22,9 @@ RUN npm prune --production
 
 FROM node:22 AS start
 
+ARG BUILD
+ENV BUILD=${build}
+
 WORKDIR /code
 
 COPY --from=build /code/node_modules/ ./node_modules/
