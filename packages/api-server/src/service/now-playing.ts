@@ -21,13 +21,11 @@ export class NowPlayingService {
     timestamp: Date,
   ): Promise<NowPlaying | null> {
     const channel = await this.channelRepository.getChannel(channelId, userId);
-
     if (!channel) {
       return null;
     }
 
     const playlistPosition = await this.getPlaylistPosition(channel, userId, timestamp);
-
     if (!playlistPosition) {
       return null;
     }
@@ -49,7 +47,6 @@ export class NowPlayingService {
 
   private async getPlaylistPosition(channel: Channel, userId: number, timestamp: Date) {
     const lastTrack = await this.channelTrackRepository.getLastTrack(channel.id, userId);
-
     if (!lastTrack) {
       return null;
     }
