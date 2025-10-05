@@ -60,13 +60,20 @@ const mapChannelTrack = (row: Pick<TrackRow & LinkRow, Fields>) => ({
 export class ChannelTrackRepository {
   constructor(@inject(KnexClient) private readonly knex: KnexClient) {}
 
-  async getTracksByChannelIdAndUserId(channelId: number, userId: number): Promise<ChannelTrack[]> {
+  async getTracks(
+    channelId: number,
+    userId: number,
+    offset: number,
+    limit: number,
+  ): Promise<ChannelTrack[]> {
     const rows = await this.knex
       .client<TrackRow>(tracksTableName)
       .join<LinkRow>(linksTableName, `track_id`, `tid`)
       .where("uid", userId)
       .where("stream_id", channelId)
       .orderBy("t_order", "asc")
+      .offset(offset)
+      .limit(limit)
       .select(...FIELDS);
 
     return rows.map(mapChannelTrack);
