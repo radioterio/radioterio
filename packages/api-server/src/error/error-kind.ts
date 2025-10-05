@@ -3,4 +3,6 @@ export enum ErrorKind {
   MissingAuthorizationHeader = "MissingAuthorizationHeader",
   IncorrectAuthorizationHeader = "IncorrectAuthorizationHeader",
   UserNotFound = "UserNotFound",
+  ChannelNotFound = "ChannelNotFound",
+  ChannelNotPlaying = "ChannelNotPlaying",
 }

@@ -33,7 +33,17 @@ export interface ChannelTrack {
   readonly offset: number;
 }
 
-type Fields = "tid" | "filename" | "ext" | "hash" | "title" | "artist" | "duration" | "time_offset";
+const FIELDS = [
+  "tid",
+  "filename",
+  "ext",
+  "hash",
+  "artist",
+  "title",
+  "duration",
+  "time_offset",
+] as const;
+type Fields = (typeof FIELDS)[number];
 
 const mapChannelTrack = (row: Pick<TrackRow & LinkRow, Fields>) => ({
   id: row.tid,
@@ -57,8 +67,47 @@ export class ChannelTrackRepository {
       .where("uid", userId)
       .where("stream_id", channelId)
       .orderBy("t_order", "asc")
-      .select("tid", "filename", "ext", "hash", "artist", "title", "duration", "time_offset");
+      .select(...FIELDS);
 
     return rows.map(mapChannelTrack);
+  }
+
+  async getLastTrack(channelId: number, userId: number): Promise<ChannelTrack | null> {
+    const row = await this.knex
+      .client<TrackRow>(tracksTableName)
+      .join<LinkRow>(linksTableName, `track_id`, `tid`)
+      .where("uid", userId)
+      .where("stream_id", channelId)
+      .orderBy("t_order", "desc")
+      .select(...FIELDS)
+      .first();
+
+    if (!row) {
+      return null;
+    }
+
+    return mapChannelTrack(row);
+  }
+
+  async getTrackAtPosition(
+    position: number,
+    channelId: number,
+    userId: number,
+  ): Promise<ChannelTrack | null> {
+    const row = await this.knex
+      .client<TrackRow>(tracksTableName)
+      .join<LinkRow>(linksTableName, `track_id`, `tid`)
+      .where("uid", userId)
+      .where("stream_id", channelId)
+      .where("time_offset", "<=", position)
+      .orderBy("t_order", "desc")
+      .select(...FIELDS)
+      .first();
+
+    if (!row) {
+      return null;
+    }
+
+    return mapChannelTrack(row);
   }
 }

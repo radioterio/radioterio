@@ -8,8 +8,8 @@ interface StreamRow {
   readonly uid: number;
   readonly name: string;
   readonly status: number; // 0, 1, 2
-  readonly started: number; // timestamp
-  readonly started_from: number; // position
+  readonly started: number | null; // timestamp
+  readonly started_from: number | null; // position
 }
 
 export enum ChannelStatus {
@@ -23,8 +23,8 @@ export interface Channel {
   readonly id: number;
   readonly title: string;
   readonly status: ChannelStatus;
-  readonly startedAt: Date;
-  readonly startedFromPosition: number;
+  readonly startedAt: Date | null;
+  readonly startedFromPosition: number | null;
 }
 
 const mapStatus = (status: number) => {
@@ -45,7 +45,7 @@ const mapChannel = (row: StreamRow): Channel => ({
   title: row.name,
   status: mapStatus(row.status),
   // when the stream started
-  startedAt: new Date(row.started),
+  startedAt: row.started !== null ? new Date(row.started) : null,
   // milliseconds offset in the playlist
   startedFromPosition: row.started_from,
 });
@@ -61,5 +61,20 @@ export class ChannelRepository {
       .select("sid", "uid", "name", "status", "started_from", "started");
 
     return rows.map(mapChannel);
+  }
+
+  async getChannel(channelId: number, userId: number): Promise<Channel | null> {
+    const row = await this.knex
+      .client<StreamRow>(tableName)
+      .where("sid", channelId)
+      .where("uid", userId)
+      .select("sid", "uid", "name", "status", "started_from", "started")
+      .first();
+
+    if (!row) {
+      return null;
+    }
+
+    return mapChannel(row);
   }
 }
