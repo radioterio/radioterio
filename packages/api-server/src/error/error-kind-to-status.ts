@@ -6,7 +6,7 @@ const errorKindToStatusMap = new Map<ErrorKind, StatusCodes>([
   [ErrorKind.MissingAuthorizationHeader, StatusCodes.BAD_REQUEST],
   [ErrorKind.IncorrectAuthorizationHeader, StatusCodes.UNAUTHORIZED],
   [ErrorKind.ChannelNotFound, StatusCodes.NOT_FOUND],
-  [ErrorKind.ChannelPaylistIsEmpty, StatusCodes.CONFLICT],
+  [ErrorKind.ChannelNotPlaying, StatusCodes.NOT_FOUND],
 ]);
 
 export function getStatusCode(kind: ErrorKind) {
