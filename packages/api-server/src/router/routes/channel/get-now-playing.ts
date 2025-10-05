@@ -8,15 +8,31 @@ import { ErrorKind } from "../../../error/error-kind.js";
 import { ok } from "../../../error/assert.js";
 import { ChannelTrack, ChannelTrackRepository } from "../../../repo/channel-track.js";
 import { AppError } from "../../../error/app-error.js";
+import { S3Client } from "../../../fs/s3.js";
+import { getTrackPath } from "../../../fs/filepath-mapper.js";
+import { getConfig } from "../../../app.js";
 
 const RouteParamsSchema = z.object({
   channelId: z.coerce.number().int(),
   timestamp: z.coerce.number().transform((ts) => new Date(ts)),
 });
 
+interface NowPlayingChannel {
+  readonly title: string;
+  readonly status: ChannelStatus;
+}
+
+interface NowPlayingTrack {
+  readonly filename: string;
+  readonly title: string;
+  readonly artist: string;
+  readonly duration: number;
+  readonly trackUrl: string;
+}
+
 interface NowPlaying {
-  readonly channel: Channel;
-  readonly track: ChannelTrack;
+  readonly channel: NowPlayingChannel;
+  readonly track: NowPlayingTrack;
   readonly position: number;
 }
 
@@ -25,6 +41,7 @@ export class GetNowPlayingController extends AuthRouteHandler<NowPlaying> {
   constructor(
     @inject(ChannelRepository) private readonly channelRepository: ChannelRepository,
     @inject(ChannelTrackRepository) private readonly channelTrackRepository: ChannelTrackRepository,
+    @inject(S3Client) private readonly s3Client: S3Client,
   ) {
     super();
   }
@@ -76,7 +93,18 @@ export class GetNowPlayingController extends AuthRouteHandler<NowPlaying> {
     ok(currentTrack, ErrorKind.ChannelNotPlaying, "Missing current track");
 
     const trackPosition = playlistPos - currentTrack.offset;
+    const config = getConfig(req.app);
 
-    res.json({ channel, track: currentTrack, position: trackPosition });
+    res.json({
+      channel: { title: channel.title, status: channel.status },
+      track: {
+        filename: currentTrack.filename,
+        title: currentTrack.title,
+        artist: currentTrack.artist,
+        duration: currentTrack.duration,
+        trackUrl: await this.s3Client.getObjectUrl(config.awsS3Bucket, getTrackPath(currentTrack)),
+      },
+      position: trackPosition,
+    });
   }
 }
