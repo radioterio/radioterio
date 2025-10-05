@@ -23,7 +23,7 @@ RUN npm prune --production
 FROM node:22 AS start
 
 ARG BUILD
-ENV BUILD=${build}
+ENV BUILD=${BUILD}
 
 WORKDIR /code
 
