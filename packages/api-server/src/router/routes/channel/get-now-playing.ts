@@ -3,14 +3,14 @@ import express from "express";
 import { inject, injectable } from "inversify";
 
 import { AppAuthRequest, AuthRouteHandler } from "../../route-handler.js";
-import { Channel, ChannelRepository, ChannelStatus } from "../../../repo/channel.js";
+import { ChannelRepository, ChannelStatus } from "../../../repo/channel.js";
 import { ErrorKind } from "../../../error/error-kind.js";
 import { ok } from "../../../error/assert.js";
-import { ChannelTrack, ChannelTrackRepository } from "../../../repo/channel-track.js";
-import { AppError } from "../../../error/app-error.js";
+import { ChannelTrackRepository } from "../../../repo/channel-track.js";
 import { S3Client } from "../../../fs/s3.js";
 import { getTrackPath } from "../../../fs/filepath-mapper.js";
 import { getConfig } from "../../../app.js";
+import { NowPlayingService } from "../../../service/now-playing.js";
 
 const RouteParamsSchema = z.object({
   channelId: z.coerce.number().int(),
@@ -41,6 +41,7 @@ export class GetNowPlayingController extends AuthRouteHandler<NowPlaying> {
   constructor(
     @inject(ChannelRepository) private readonly channelRepository: ChannelRepository,
     @inject(ChannelTrackRepository) private readonly channelTrackRepository: ChannelTrackRepository,
+    @inject(NowPlayingService) private readonly nowPlayingService: NowPlayingService,
     @inject(S3Client) private readonly s3Client: S3Client,
   ) {
     super();
@@ -50,61 +51,26 @@ export class GetNowPlayingController extends AuthRouteHandler<NowPlaying> {
     const { channelId, timestamp } = RouteParamsSchema.parse(req.params);
     const { userId } = req.auth;
 
-    const [channel, lastTrack] = await Promise.all([
-      this.channelRepository.getChannel(channelId, userId),
-      this.channelTrackRepository.getLastTrack(channelId, userId),
-    ]);
-    ok(channel, ErrorKind.ChannelNotFound);
-    ok(lastTrack, ErrorKind.ChannelNotPlaying, "Missing last track");
-
-    let playlistPos;
-
-    if (channel.status === ChannelStatus.Started) {
-      ok(channel.startedAt, ErrorKind.ChannelNotPlaying, "Missing channel start time");
-      ok(
-        channel.startedFromPosition !== null,
-        ErrorKind.ChannelNotPlaying,
-        "Missing channel start position",
-      );
-
-      const timestampMillis = timestamp.getTime();
-      const startedAtMillis = channel.startedAt.getTime();
-      const playlistDuration = lastTrack.offset + lastTrack.duration;
-      const absolutePos = timestampMillis - startedAtMillis + channel.startedFromPosition;
-
-      playlistPos = absolutePos % playlistDuration;
-    } else if (channel.status === ChannelStatus.Paused) {
-      ok(
-        channel.startedFromPosition !== null,
-        ErrorKind.ChannelNotPlaying,
-        "Missing channel start position",
-      );
-
-      playlistPos = channel.startedFromPosition;
-    } else {
-      throw AppError.fromErrorKind(ErrorKind.ChannelNotPlaying);
-    }
-
-    const currentTrack = await this.channelTrackRepository.getTrackAtPosition(
-      playlistPos,
-      channelId,
-      userId,
-    );
-    ok(currentTrack, ErrorKind.ChannelNotPlaying, "Missing current track");
-
-    const trackPosition = playlistPos - currentTrack.offset;
+    const nowPlaying = await this.nowPlayingService.getNowPlaying(channelId, userId, timestamp);
+    ok(nowPlaying, ErrorKind.ChannelNotPlaying);
     const config = getConfig(req.app);
 
     res.json({
-      channel: { title: channel.title, status: channel.status },
-      track: {
-        filename: currentTrack.filename,
-        title: currentTrack.title,
-        artist: currentTrack.artist,
-        duration: currentTrack.duration,
-        trackUrl: await this.s3Client.getObjectUrl(config.awsS3Bucket, getTrackPath(currentTrack)),
+      channel: {
+        title: nowPlaying.channel.title,
+        status: nowPlaying.channel.status,
       },
-      position: trackPosition,
+      track: {
+        filename: nowPlaying.track.filename,
+        title: nowPlaying.track.title,
+        artist: nowPlaying.track.artist,
+        duration: nowPlaying.track.duration,
+        trackUrl: await this.s3Client.getObjectUrl(
+          config.awsS3Bucket,
+          getTrackPath(nowPlaying.track),
+        ),
+      },
+      position: nowPlaying.position,
     });
   }
 }
