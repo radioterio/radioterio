@@ -1,4 +1,4 @@
-import { Readable, PassThrough } from "node:stream";
+import { Readable, PassThrough, TransformOptions } from "node:stream";
 import makeDebug from "debug";
 
 const debug = makeDebug("app:stream-utils");
@@ -43,3 +43,20 @@ export const repeat = (provideReadable: () => Promise<Readable>): Readable => {
 
   return output;
 };
+
+export class CountingPassThrough extends PassThrough {
+  public bytesPassed = 0;
+
+  constructor(options?: TransformOptions) {
+    super(options);
+
+    this.on("data", (chunk) => {
+      this.bytesPassed += chunk.length;
+    });
+  }
+
+  /** Returns number of bytes passed through so far */
+  get count() {
+    return this.bytesPassed;
+  }
+}
