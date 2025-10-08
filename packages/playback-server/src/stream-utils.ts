@@ -23,7 +23,7 @@ export const repeat = (provideReadable: () => Promise<Readable>): Readable => {
 
     currentInput
       .once("end", () => {
-        d("Input encoded");
+        d("Input ended");
         return getNext();
       })
       .pipe(output, { end: false });
