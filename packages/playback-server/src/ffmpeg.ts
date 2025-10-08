@@ -1,6 +1,9 @@
 import { Readable, PassThrough } from "node:stream";
 import ffmpeg from "fluent-ffmpeg";
+import { spawn } from "node:child_process";
 import makeDebug from "debug";
+
+const debug = makeDebug("app:ffmpeg");
 
 const KILL_SIGNAL = "SIGKILL";
 
@@ -16,26 +19,36 @@ export interface EncoderParameters {
   bitrate: number;
   channels: number;
   format: string;
+  codec: string;
 }
 
-const debugEncoder = makeDebug("app:ffmpeg:encoder");
-
-export function encoder(
+export function encode(
   src: Readable,
   params: EncoderParameters,
   closeInputOnError: boolean,
 ): Readable {
+  const d = debug.extend(":encoder");
+
   const output = new PassThrough();
 
   const encoder = ffmpeg(src)
     .inputOptions([`-ac ${RAW_AUDIO_FORMAT.channels}`, `-ar ${RAW_AUDIO_FORMAT.sampleRate}`])
-    .inputFormat(RAW_AUDIO_FORMAT.codec)
+    .inputFormat(RAW_AUDIO_FORMAT.format)
     .audioBitrate(params.bitrate)
     .audioChannels(params.channels)
+    .audioCodec(params.codec)
     .outputFormat(params.format);
 
+  encoder.on("start", (commandLine) => {
+    d(`Command started: ${commandLine}`);
+  });
+
+  encoder.on("end", () => {
+    d(`Command finished`);
+  });
+
   encoder.on("error", (err) => {
-    debugEncoder(`Command failed: ${err}`);
+    d(`Command failed: ${err}`);
 
     if (closeInputOnError) {
       src.destroy(err);
@@ -44,52 +57,64 @@ export function encoder(
     encoder.kill(KILL_SIGNAL);
   });
 
-  encoder.on("start", (commandLine) => {
-    debugEncoder(`Command started: ${commandLine}`);
-  });
-
-  encoder.pipe(output);
+  encoder.pipe(output, { end: true });
 
   return output;
 }
 
-const debugDecoder = makeDebug("app:ffmpeg:decoder");
-
 const millisToSeconds = (millis: number) => millis / 1000;
 
-export function decode(srcUrl: string, seekInput: number) {
+export function decode(srcUrl: string, seekInput: number, duration: number) {
+  const d = debug.extend(":decoder");
+
   const output = new PassThrough();
 
-  const decoder = ffmpeg()
-    .audioCodec(RAW_AUDIO_FORMAT.codec)
-    .audioChannels(RAW_AUDIO_FORMAT.channels)
-    .audioFrequency(RAW_AUDIO_FORMAT.sampleRate)
-    .outputFormat(RAW_AUDIO_FORMAT.format)
-    .input(srcUrl)
-    .seekInput(millisToSeconds(seekInput));
+  const durationSeconds = millisToSeconds(duration).toFixed(3);
+  const seekSeconds = millisToSeconds(seekInput).toFixed(3);
+  const process = spawn("ffmpeg", [
+    "-ss",
+    seekSeconds,
+    "-i",
+    srcUrl,
+    "-f",
+    `${RAW_AUDIO_FORMAT.format}`,
+    "-t",
+    `${durationSeconds}`,
+    "-i",
+    "/dev/zero",
+    "-filter_complex",
+    `amix=inputs=2:duration=longest,atrim=duration=${durationSeconds},asetpts=PTS-STARTPTS`,
+    "-acodec",
+    RAW_AUDIO_FORMAT.codec,
+    "-ac",
+    String(RAW_AUDIO_FORMAT.channels),
+    "-ar",
+    String(RAW_AUDIO_FORMAT.sampleRate),
+    "-f",
+    String(RAW_AUDIO_FORMAT.format),
+    "-",
+  ]);
 
-  decoder.on("error", (err) => {
-    debugDecoder(`Command failed: ${err}`);
-    decoder.kill(KILL_SIGNAL);
+  let bytesDecoded = 0;
+
+  output.on("data", (chunk) => {
+    bytesDecoded += chunk.length;
   });
 
-  decoder.on("start", (commandLine) => {
-    debugDecoder(`Command started: ${commandLine}`);
+  process.on("spawn", () => {
+    d(`Command started: %s`, process.spawnargs.join(" "));
   });
 
-  decoder.on("end", () => {
-    debugDecoder(`Command finished`);
+  process.on("close", () => {
+    d(`Command finished`);
   });
 
-  const start = Date.now();
-
-  decoder.once("progress", () => {
-    const real = Date.now();
-    const delay = real - start;
-    debugDecoder(`Delay: ${delay}ms`);
+  output.on("error", (err) => {
+    d(`Command failed: ${err}`);
+    process.kill(KILL_SIGNAL);
   });
 
-  decoder.pipe(output);
+  process.stdout.pipe(output);
 
   return output;
 }

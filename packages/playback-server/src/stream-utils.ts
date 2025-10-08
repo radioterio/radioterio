@@ -4,9 +4,10 @@ import makeDebug from "debug";
 const debug = makeDebug("app:stream-utils");
 
 export const repeat = (provideReadable: () => Promise<Readable>): Readable => {
-  const d = debug.extend(":repeat");
+  const d = debug.extend("repeat");
 
   const output = new PassThrough();
+
   let currentInput: Readable;
 
   output.on("error", (err) => {
