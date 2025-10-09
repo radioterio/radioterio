@@ -26,7 +26,6 @@ export function setupRoutes(app: express.Application, config: Config) {
       const srcUrl = `${config.apiServerUrl}/channels/${req.params.channelId}/now-playing-at/${progress.currentTime}`;
       const resp = await fetch(srcUrl, { headers: { Authorization: `Bearer ${token}` } });
       const json = await resp.json();
-      console.log(srcUrl, JSON.stringify(json, null, 2));
       const now = schema.parse(json);
       const left = now.track.duration - now.position;
       const decoderStream = ff.decode(now.track.trackUrl, now.position, left);
