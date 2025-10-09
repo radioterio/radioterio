@@ -1,6 +1,9 @@
 import { inject, injectable } from "inversify";
 import { ChannelTrack, ChannelTrackRepository } from "../repo/channel-track.js";
 import { Channel, ChannelRepository, ChannelStatus } from "../repo/channel.js";
+import makeDebug from "debug";
+
+const debug = makeDebug("app:nowPlaying");
 
 export interface NowPlaying {
   channel: Channel;
@@ -22,11 +25,13 @@ export class NowPlayingService {
   ): Promise<NowPlaying | null> {
     const channel = await this.channelRepository.getChannel(channelId, userId);
     if (!channel) {
+      debug("No channel");
       return null;
     }
 
     const playlistPosition = await this.getPlaylistPosition(channel, userId, timestamp);
     if (!playlistPosition) {
+      debug("No playlist position");
       return null;
     }
 
@@ -37,6 +42,7 @@ export class NowPlayingService {
     );
 
     if (!track) {
+      debug("No track at position");
       return null;
     }
 
@@ -48,6 +54,7 @@ export class NowPlayingService {
   private async getPlaylistPosition(channel: Channel, userId: number, timestamp: Date) {
     const lastTrack = await this.channelTrackRepository.getLastTrack(channel.id, userId);
     if (!lastTrack) {
+      debug("No last track");
       return null;
     }
 
