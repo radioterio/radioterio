@@ -17,13 +17,13 @@ const schema = z.object({
 
 export function setupRoutes(app: express.Application, config: Config) {
   app.get("/user/:userId/channel/:channelId/stream", async (req, res) => {
-    const { userId, channelId } = req.params;
     const initialTime = Date.now();
 
     const progress = new DecodeProgress(initialTime);
     const stream = repeat(async () => {
-      const token = await createToken(parseInt(userId, 1), config.jwtSecret);
-      const srcUrl = `${config.apiServerUrl}/channels/${channelId}/now-playing-at/${progress.currentTime}`;
+      const userId = parseInt(req.params.userId, 10);
+      const token = await createToken(userId, config.jwtSecret);
+      const srcUrl = `${config.apiServerUrl}/channels/${req.params.channelId}/now-playing-at/${progress.currentTime}`;
       const resp = await fetch(srcUrl, { headers: { Authorization: `Bearer ${token}` } });
       const json = await resp.json();
       const now = schema.parse(json);
