@@ -1,11 +1,11 @@
 import express from "express";
-import { SignJWT } from "jose";
 import { z } from "zod";
 import { StatusCodes } from "http-status-codes";
 
 import { Config } from "./config.js";
 import { DecodeProgress, repeat } from "./stream-utils.js";
 import * as ff from "./ffmpeg.js";
+import { createToken } from "./auth.js";
 
 const schema = z.object({
   track: z.object({
@@ -16,18 +16,13 @@ const schema = z.object({
 });
 
 export function setupRoutes(app: express.Application, config: Config) {
-  app.get("/channel/:channelId/get-audio", async (req, res) => {
-    const { channelId } = req.params;
+  app.get("/user/:userId/channel/:channelId/stream", async (req, res) => {
+    const { userId, channelId } = req.params;
     const initialTime = Date.now();
 
     const progress = new DecodeProgress(initialTime);
     const stream = repeat(async () => {
-      const alg = "HS256";
-      const token = await new SignJWT({ userId: 1 })
-        .setProtectedHeader({ alg })
-        .setExpirationTime("2h")
-        .sign(config.jwtSecret);
-
+      const token = await createToken(parseInt(userId, 1), config.jwtSecret);
       const srcUrl = `${config.apiServerUrl}/channels/${channelId}/now-playing-at/${progress.currentTime}`;
       const resp = await fetch(srcUrl, { headers: { Authorization: `Bearer ${token}` } });
       const json = await resp.json();
