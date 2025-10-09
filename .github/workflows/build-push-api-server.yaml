@@ -3,9 +3,9 @@ name: Build Push api-server to Docker Hub
 on:
   push:
     paths:
-      - services/packages/api-server/**
-      - services/packages/common/**
-      - services/package*.json
+      - packages/api-server/**
+      - packages/common/**
+      - package*.json
       - "!.github/**"
       - ".github/workflows/build-push-api-server.yaml"
     branches:

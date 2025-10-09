@@ -3,9 +3,9 @@ name: Build Push playback-server to Docker Hub
 on:
   push:
     paths:
-      - services/packages/playback-server/**
-      - services/packages/common/**
-      - services/package*.json
+      - packages/playback-server/**
+      - packages/common/**
+      - package*.json
       - "!.github/**"
       - ".github/workflows/build-push-playback-server.yaml"
     branches:
