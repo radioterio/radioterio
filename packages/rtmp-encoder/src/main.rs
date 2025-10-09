@@ -43,9 +43,16 @@ pub(crate) fn main() {
     };
     let (output_video_sink_pad, output_audio_sink_pad) = make_output(&pipeline, &output);
 
-    let videotestsrc = make_element("videotestsrc");
+    let html = include_str!("index.html").as_bytes();
+    let uri = format!(
+        "data:text/html;base64,{}",
+        gstreamer::glib::base64_encode(html)
+    );
+    let wpevideosrc = make_element("wpevideosrc");
+    wpevideosrc.set_property("draw-background", &true);
+    wpevideosrc.set_property("location", &uri);
     pipeline
-        .add(&videotestsrc)
+        .add(&wpevideosrc)
         .expect("Unable to add videotestsrc to pipeline");
 
     let url = format!(
@@ -54,7 +61,7 @@ pub(crate) fn main() {
     );
     let audioinputsrc = make_audio_input(&pipeline, &url);
 
-    gstreamer::Element::link_many(&[&videotestsrc, &video_sink]).expect("Unable to link elements");
+    gstreamer::Element::link_many(&[&wpevideosrc, &video_sink]).expect("Unable to link elements");
     gstreamer::Element::link_many(&[&audioinputsrc, &audio_sink]).expect("Unable to link elements");
 
     video_src
