@@ -51,11 +51,13 @@ export function encode(
   });
 
   encoder.on("end", () => {
-    d(`Command finished`);
+    d(`Command finished: input closed`);
   });
 
   encoder.on("error", (err) => {
-    if (!isOutputStreamClosed(err)) {
+    if (isOutputStreamClosed(err)) {
+      d(`Command finished: output closed`);
+    } else {
       d(`Command failed: ${err}`);
     }
 
