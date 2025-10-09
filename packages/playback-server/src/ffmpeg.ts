@@ -33,7 +33,7 @@ export function encode(
   params: EncoderParameters,
   closeInputOnError: boolean,
 ): Readable {
-  const d = debug.extend(":encoder");
+  const d = debug.extend("encoder");
 
   const output = new PassThrough();
 
@@ -74,7 +74,7 @@ export function encode(
 const millisToSeconds = (millis: number) => millis / 1000;
 
 export function decode(srcUrl: string, seekInput: number, duration: number): Readable {
-  const d = debug.extend(":decoder");
+  const d = debug.extend("decoder");
 
   const output = new PassThrough();
 
