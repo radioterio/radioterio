@@ -1,5 +1,5 @@
 [package]
-name = "radioterio-rtmp-ingest"
+name = "radioterio-rtmp-encoder"
 version = "1.0.0"
 authors = ["Roman Lakhtadyr <roman.lakhtadyr@gmail.com>"]
 edition = "2024"

@@ -1,0 +1,12 @@
+{
+  "name": "@radioterio/rtmp-encoder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "dotenvx run -- cargo run",
+    "build": "cargo build"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.51.0"
+  }
+}
