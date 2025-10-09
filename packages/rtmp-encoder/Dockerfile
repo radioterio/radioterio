@@ -41,6 +41,21 @@ RUN apt-get update && \
     libgirepository1.0-dev
 
 
+FROM build-deps AS devenv
+
+ARG USER=1000:1000
+
+# Install Rust and Cargo helpers
+ENV RUSTUP_HOME=/opt/rust
+ENV CARGO_HOME=/opt/rust
+
+RUN mkdir /opt/rust && chown $USER /opt/rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+ENV PATH="/opt/rust/bin:${PATH}"
+
+WORKDIR /code/
+
+
 FROM build-deps AS build
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
