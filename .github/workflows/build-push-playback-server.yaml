@@ -1,0 +1,41 @@
+name: Build Push playback-server to Docker Hub
+
+on:
+  push:
+    paths:
+      - services/packages/playback-server/**
+      - services/packages/common/**
+      - services/package*.json
+      - "!.github/**"
+      - ".github/workflows/build-push-playback-server.yaml"
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            BUILD=${{ github.sha }}
+          file: packages/playback-server/Dockerfile
+          context: .
+          push: true
+          tags: |
+            pldin601/radioterio-playback-server:latest,
+            pldin601/radioterio-playback-server:${{ github.sha }}
