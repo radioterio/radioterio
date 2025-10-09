@@ -43,7 +43,8 @@ export function encode(
     .audioBitrate(params.bitrate)
     .audioChannels(params.channels)
     .audioCodec(params.codec)
-    .outputFormat(params.format);
+    .outputFormat(params.format)
+    .native();
 
   encoder.on("start", (commandLine) => {
     d(`Command started: ${commandLine}`);
