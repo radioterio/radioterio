@@ -2,6 +2,7 @@ import { Readable, PassThrough } from "node:stream";
 import ffmpeg from "fluent-ffmpeg";
 import { spawn } from "node:child_process";
 import makeDebug from "debug";
+import { isOutputStreamClosed } from "./stream-utils.js";
 
 const debug = makeDebug("app:ffmpeg");
 
@@ -48,7 +49,9 @@ export function encode(
   });
 
   encoder.on("error", (err) => {
-    d(`Command failed: ${err}`);
+    if (!isOutputStreamClosed(err)) {
+      d(`Command failed: ${err}`);
+    }
 
     if (closeInputOnError) {
       src.destroy(err);
@@ -95,12 +98,6 @@ export function decode(srcUrl: string, seekInput: number, duration: number) {
     "-",
   ]);
 
-  let bytesDecoded = 0;
-
-  output.on("data", (chunk) => {
-    bytesDecoded += chunk.length;
-  });
-
   process.on("spawn", () => {
     d(`Command started: %s`, process.spawnargs.join(" "));
   });
@@ -110,7 +107,10 @@ export function decode(srcUrl: string, seekInput: number, duration: number) {
   });
 
   output.on("error", (err) => {
-    d(`Command failed: ${err}`);
+    if (!isOutputStreamClosed(err)) {
+      d(`Command failed: ${err}`);
+    }
+
     process.kill(KILL_SIGNAL);
   });
 

@@ -39,8 +39,6 @@ export function setupRoutes(app: express.Application, config: Config) {
       const now = schema.parse(json);
       const left = now.track.duration - now.position;
 
-      console.log({ currentTime, played, left });
-
       const dec = ff.decode(now.track.trackUrl, now.position, left);
 
       dec.on("data", (chunk) => {

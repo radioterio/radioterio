@@ -11,11 +11,12 @@ export const repeat = (provideReadable: () => Promise<Readable>): Readable => {
   let currentInput: Readable;
 
   output.on("error", (err) => {
-    d("Error in output: %O", err);
+    if (!isOutputStreamClosed(err)) {
+      d("Error in output: %O", err);
+    }
 
     if (currentInput) {
       currentInput.destroy(err);
-      d("Input destroyed");
     }
   });
 
@@ -60,4 +61,8 @@ export class CountingPassThrough extends PassThrough {
   get count() {
     return this.bytesPassed;
   }
+}
+
+export function isOutputStreamClosed(error: Error) {
+  return error.message.includes("Output stream closed");
 }
