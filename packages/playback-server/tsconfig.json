@@ -10,8 +10,6 @@
     "baseUrl": ".",
     "rootDir": "./src/",
     "outDir": "./dist",
-    "types": ["reflect-metadata", "node"],
-
-    "experimentalDecorators": true
+    "types": ["node"]
   }
 }
