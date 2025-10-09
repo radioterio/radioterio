@@ -1,5 +1,6 @@
 import { Readable, PassThrough, TransformOptions } from "node:stream";
 import makeDebug from "debug";
+import { RAW_AUDIO_BYTES_PER_MILLIS } from "./ffmpeg.js";
 
 const debug = makeDebug("app:stream-utils");
 
@@ -46,20 +47,19 @@ export const repeat = (provideReadable: () => Promise<Readable>): Readable => {
   return output;
 };
 
-export class CountingPassThrough extends PassThrough {
-  public bytesPassed = 0;
+export class DecodeProgress {
+  private bytesPassed = 0;
 
-  constructor(options?: TransformOptions) {
-    super(options);
+  constructor(private readonly initialTime: number) {}
 
-    this.on("data", (chunk) => {
-      this.bytesPassed += chunk.length;
-    });
+  get currentTime() {
+    return this.initialTime + this.bytesPassed / RAW_AUDIO_BYTES_PER_MILLIS;
   }
 
-  /** Returns number of bytes passed through so far */
-  get count() {
-    return this.bytesPassed;
+  attachToStream(stream: Readable) {
+    stream.on("data", (chunk) => {
+      this.bytesPassed += chunk.length;
+    });
   }
 }
 

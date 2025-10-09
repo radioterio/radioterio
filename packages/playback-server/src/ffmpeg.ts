@@ -16,6 +16,11 @@ export const RAW_AUDIO_FORMAT = {
   format: "s16le",
 } as const;
 
+export const RAW_AUDIO_BYTES_PER_MILLIS =
+  (RAW_AUDIO_FORMAT.bitDepth / 8) *
+  RAW_AUDIO_FORMAT.channels *
+  (RAW_AUDIO_FORMAT.sampleRate / 1_000);
+
 export interface EncoderParameters {
   bitrate: number;
   channels: number;
@@ -67,7 +72,7 @@ export function encode(
 
 const millisToSeconds = (millis: number) => millis / 1000;
 
-export function decode(srcUrl: string, seekInput: number, duration: number) {
+export function decode(srcUrl: string, seekInput: number, duration: number): Readable {
   const d = debug.extend(":decoder");
 
   const output = new PassThrough();

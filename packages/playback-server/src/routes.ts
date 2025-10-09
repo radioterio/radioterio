@@ -1,13 +1,11 @@
 import express from "express";
 import { SignJWT } from "jose";
-
-import { Config } from "./config.js";
-import { CountingPassThrough, repeat } from "./stream-utils.js";
-import * as ff from "./ffmpeg.js";
 import { z } from "zod";
 import { StatusCodes } from "http-status-codes";
 
-const BPMS = 192;
+import { Config } from "./config.js";
+import { DecodeProgress, repeat } from "./stream-utils.js";
+import * as ff from "./ffmpeg.js";
 
 const schema = z.object({
   track: z.object({
@@ -22,30 +20,24 @@ export function setupRoutes(app: express.Application, config: Config) {
     const { channelId } = req.params;
     const initialTime = Date.now();
 
-    let bytesDecoded = 0;
+    const progress = new DecodeProgress(initialTime);
     const stream = repeat(async () => {
-      const played = Math.floor(bytesDecoded / BPMS);
-      const currentTime = initialTime + played;
-
       const alg = "HS256";
       const token = await new SignJWT({ userId: 1 })
         .setProtectedHeader({ alg })
         .setExpirationTime("2h")
         .sign(config.jwtSecret);
 
-      const srcUrl = `${config.apiServerUrl}/channels/${channelId}/now-playing-at/${currentTime}`;
+      const srcUrl = `${config.apiServerUrl}/channels/${channelId}/now-playing-at/${progress.currentTime}`;
       const resp = await fetch(srcUrl, { headers: { Authorization: `Bearer ${token}` } });
       const json = await resp.json();
       const now = schema.parse(json);
       const left = now.track.duration - now.position;
+      const decoderStream = ff.decode(now.track.trackUrl, now.position, left);
 
-      const dec = ff.decode(now.track.trackUrl, now.position, left);
+      progress.attachToStream(decoderStream);
 
-      dec.on("data", (chunk) => {
-        bytesDecoded += chunk.length;
-      });
-
-      return dec;
+      return decoderStream;
     });
 
     const encoder = ff.encode(
