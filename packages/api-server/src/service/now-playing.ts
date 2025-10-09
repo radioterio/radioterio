@@ -30,7 +30,7 @@ export class NowPlayingService {
     }
 
     const playlistPosition = await this.getPlaylistPosition(channel, userId, timestamp);
-    if (!playlistPosition) {
+    if (playlistPosition === null) {
       debug("No playlist position");
       return null;
     }
