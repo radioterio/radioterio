@@ -53,7 +53,7 @@ export class DecodeProgress {
   constructor(private readonly initialTime: number) {}
 
   get currentTime() {
-    return this.initialTime + this.bytesPassed / RAW_AUDIO_BYTES_PER_MILLIS;
+    return this.initialTime + Math.floor(this.bytesPassed / RAW_AUDIO_BYTES_PER_MILLIS);
   }
 
   attachToStream(stream: Readable) {
