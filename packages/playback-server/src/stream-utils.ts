@@ -1,4 +1,4 @@
-import { Readable, PassThrough, TransformOptions } from "node:stream";
+import { Readable, PassThrough } from "node:stream";
 import makeDebug from "debug";
 import { RAW_AUDIO_BYTES_PER_MILLIS } from "./ffmpeg.js";
 
