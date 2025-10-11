@@ -15,9 +15,14 @@ interface UserRow {
 export interface User {
   readonly id: number;
   readonly email: string;
+  readonly passwordHash: string;
 }
 
-const mapUser = (row: UserRow): User => ({ id: row.uid, email: row.mail });
+const mapUser = (row: UserRow): User => ({
+  id: row.uid,
+  email: row.mail,
+  passwordHash: row.password,
+});
 
 @injectable()
 export class UserRepository {
@@ -27,6 +32,21 @@ export class UserRepository {
     const userRow = await this.knex
       .client<UserRow>(tableName)
       .where("uid", userId)
+      .where("is_enabled", true)
+      .select("uid", "mail", "login", "password", "is_enabled")
+      .first();
+
+    if (!userRow) {
+      return null;
+    }
+
+    return mapUser(userRow);
+  }
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    const userRow = await this.knex
+      .client<UserRow>(tableName)
+      .where("mail", email)
       .where("is_enabled", true)
       .select("uid", "mail", "login", "password", "is_enabled")
       .first();

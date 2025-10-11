@@ -5,4 +5,6 @@ export enum ErrorKind {
   UserNotFound = "UserNotFound",
   ChannelNotFound = "ChannelNotFound",
   ChannelNotPlaying = "ChannelNotPlaying",
+  MissingEmailOrPassword = "MissingEmailOrPassword",
+  WrongEmailOrPassword = "WrongEmailOrPassword",
 }

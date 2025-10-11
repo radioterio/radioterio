@@ -1,4 +1,5 @@
 import { Application, Router } from "express";
+import bodyParser from "body-parser";
 
 import { makeBind } from "./bind.js";
 import { getContainer } from "../app.js";
@@ -8,6 +9,7 @@ import { GetUserController } from "./routes/user/get-user.js";
 import { GetChannelsController } from "./routes/channel/get-channels.js";
 import { GetChannelsTracksController } from "./routes/channel/get-channel-tracks.js";
 import { GetNowPlayingController } from "./routes/channel/get-now-playing.js";
+import { LoginRouteHandler } from "./routes/auth/login.js";
 
 export function setupRouter(app: Application) {
   const router = Router();
@@ -18,6 +20,7 @@ export function setupRouter(app: Application) {
   router.get("/channels", bind(GetChannelsController));
   router.get("/channels/:channelId/tracks", bind(GetChannelsTracksController));
   router.get("/channels/:channelId/now-playing-at/:timestamp", bind(GetNowPlayingController));
+  router.post("/auth/login", bodyParser.json(), bind(LoginRouteHandler));
 
   router.use(errorMiddleware);
 

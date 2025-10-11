@@ -4,12 +4,16 @@
   "type": "module",
   "exports": {
     "./utils/config": "./lib/utils/config.js",
-    "./utils/types": "./lib/utils/types.js"
+    "./utils/types": "./lib/utils/types.js",
+    "./utils/bcrypt": "./lib/utils/bcrypt.js",
+    "./utils/auth": "./lib/utils/auth.js"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json"
   },
   "peerDependencies": {
-    "zod": "^4.1.11"
+    "zod": "^4.1.11",
+    "bcrypt": "^6.0.0",
+    "jose": "^6.1.0"
   }
 }
