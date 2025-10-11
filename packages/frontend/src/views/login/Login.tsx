@@ -65,7 +65,7 @@ export const Login: React.FC<LoginViewProps> = ({
               </div>
               <button
                 type="submit"
-                className="w-full rounded-2xl border px-4 py-3 font-medium shadow bg-white text-gray-800"
+                className="w-full rounded-2xl border px-4 py-3 font-medium text-gray-800 bg-white disabled:bg-gray-200 hover:enabled:bg-gray-200 transition-colors"
                 disabled={!canSubmit || isSubmitting}
               >
                 {isSubmitting ? <InlineSpinner /> : "Sign in"}
