@@ -7,6 +7,10 @@ pub(crate) fn make_element(factory: &str) -> Element {
         .expect(&format!("Unable to make {} element", factory))
 }
 
+pub(crate) fn element_exist(factory: &str) -> bool {
+    ElementFactory::find(factory).is_some()
+}
+
 pub(crate) fn make_capsfilter(caps: &Caps) -> Element {
     let capsfilter = make_element("capsfilter");
 

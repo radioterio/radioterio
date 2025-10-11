@@ -79,16 +79,29 @@ WORKDIR /code/
 
 FROM devenv AS devenv-cef
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      xvfb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy compiled GStreamer plugins
 COPY --from=gst-plugins /src/gstcefsrc/build/* /opt/gstcefsrc/
 ENV LD_PRELOAD="/opt/gstcefsrc/libcef.so"
 ENV GST_PLUGIN_PATH="/opt/gstcefsrc:$GST_PLUGIN_PATH"
 
-
 WORKDIR /code/
 
 
 FROM gst AS build
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      curl \
+      ca-certificates \
+      build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -104,15 +117,21 @@ RUN cargo build --release
 
 FROM gst AS with-cef
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      xvfb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /code/target/release/radioterio-rtmp-encoder /radioterio-rtmp-encoder
-COPY packages/rtmp-encoder/entrypoint.sh /entrypoint.sh
+COPY packages/rtmp-encoder/entrypoint-cef.sh /entrypoint-cef.sh
 
 # Copy compiled GStreamer plugins
 COPY --from=gst-plugins /src/gstcefsrc/build/* /opt/gstcefsrc/
 ENV LD_PRELOAD="/opt/gstcefsrc/libcef.so"
 ENV GST_PLUGIN_PATH="/opt/gstcefsrc:$GST_PLUGIN_PATH"
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint-cef.sh"]
 
 
 FROM gst

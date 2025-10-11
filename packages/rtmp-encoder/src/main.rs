@@ -1,8 +1,7 @@
 use crate::config::{Config, VideoAcceleration};
-use crate::gstreamer_utils::make_element;
 use crate::stream_utils::{
     StreamOutput, VideoEncoder, make_audio_encoder, make_audio_input, make_output,
-    make_video_encoder,
+    make_video_encoder, make_video_input,
 };
 use gstreamer::prelude::*;
 
@@ -44,24 +43,19 @@ pub(crate) fn main() {
     let (output_video_sink_pad, output_audio_sink_pad) = make_output(&pipeline, &output);
 
     let html = include_str!("index.html").as_bytes();
-    let uri = format!(
+    let video_url = format!(
         "data:text/html;base64,{}",
         gstreamer::glib::base64_encode(html)
     );
-    let wpevideosrc = make_element("wpevideosrc");
-    wpevideosrc.set_property("draw-background", &true);
-    wpevideosrc.set_property("location", &uri);
-    pipeline
-        .add(&wpevideosrc)
-        .expect("Unable to add videotestsrc to pipeline");
+    let videoinputsrc = make_video_input(&pipeline, &video_url);
 
-    let url = format!(
+    let audio_url = format!(
         "{}/user/{}/channel/{}/stream",
         config.playback_server_url, config.user_id, config.channel_id
     );
-    let audioinputsrc = make_audio_input(&pipeline, &url);
+    let audioinputsrc = make_audio_input(&pipeline, &audio_url);
 
-    gstreamer::Element::link_many(&[&wpevideosrc, &video_sink]).expect("Unable to link elements");
+    gstreamer::Element::link_many(&[&videoinputsrc, &video_sink]).expect("Unable to link elements");
     gstreamer::Element::link_many(&[&audioinputsrc, &audio_sink]).expect("Unable to link elements");
 
     video_src

@@ -1,4 +1,4 @@
-use crate::gstreamer_utils::{make_capsfilter, make_element};
+use crate::gstreamer_utils::{element_exist, make_capsfilter, make_element};
 use gstreamer::prelude::*;
 
 pub(crate) fn make_audio_input(pipeline: &gstreamer::Pipeline, url: &str) -> gstreamer::Element {
@@ -15,6 +15,28 @@ pub(crate) fn make_audio_input(pipeline: &gstreamer::Pipeline, url: &str) -> gst
         .expect("Failed to link audio input elements");
 
     mpg123audiodec
+}
+
+pub(crate) fn make_video_input(pipeline: &gstreamer::Pipeline, url: &str) -> gstreamer::Element {
+    let element = if element_exist("cefsrc") {
+        let cefsrc = make_element("cefsrc");
+
+        cefsrc.set_property("url", &url);
+
+        cefsrc
+    } else {
+        let wpesrc = make_element("wpevideosrc");
+        wpesrc.set_property("draw-background", &true);
+        wpesrc.set_property("location", &url);
+
+        wpesrc
+    };
+
+    pipeline
+        .add(&element)
+        .expect("Unable to add video input element to pipeline");
+
+    element
 }
 
 pub(crate) enum StreamOutput {
