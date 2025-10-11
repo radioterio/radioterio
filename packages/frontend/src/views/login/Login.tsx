@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { InlineSpinner } from "@/components/InlineSpinner/InlineSpinner";
 
 export interface LoginViewProps {
   readonly email: string;
@@ -8,25 +9,25 @@ export interface LoginViewProps {
   readonly password: string;
   readonly onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 
-  readonly isSubmitEnabled: boolean;
+  readonly canSubmit: boolean;
   readonly isSubmitting: boolean;
-  readonly onSubmitClicked: (e: React.FormEvent<HTMLFormElement>) => void;
+  readonly onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 
-  readonly onForgotPasswordClicked: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  readonly onForgotPasswordClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export const LoginView: React.FC<LoginViewProps> = ({
+export const Login: React.FC<LoginViewProps> = ({
   email,
   onEmailChange,
   password,
   onPasswordChange,
-  onSubmitClicked,
-  isSubmitEnabled,
+  onSubmit,
+  canSubmit,
   isSubmitting,
-  onForgotPasswordClicked,
+  onForgotPasswordClick,
 }) => {
   return (
-    <div className="w-full">
+    <div className="w-full cursor-default">
       <div className="md:grid md:grid-cols-2">
         {/* Left / Top panel */}
         <section className="relative h-screen md:h-screen flex items-start md:items-center justify-center px-6 py-12 md:py-6">
@@ -36,7 +37,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
               <Image width={128} height={128} alt={"logo"} src={"/images/mor-cover-bg.png"} />
             </div>
             <h1 className="text-2xl text-center font-semibold mb-14">radioter.io</h1>
-            <form className="space-y-4" onSubmit={onSubmitClicked}>
+            <form className="space-y-4" onSubmit={onSubmit}>
               <input
                 type="email"
                 placeholder="Email"
@@ -56,7 +57,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 />
                 <button
                   className="text-sm text-center w-full"
-                  onClick={onForgotPasswordClicked}
+                  onClick={onForgotPasswordClick}
                   disabled={isSubmitting}
                 >
                   Forgot password?
@@ -65,9 +66,9 @@ export const LoginView: React.FC<LoginViewProps> = ({
               <button
                 type="submit"
                 className="w-full rounded-2xl border px-4 py-3 font-medium shadow bg-white text-gray-800"
-                disabled={!isSubmitEnabled || isSubmitting}
+                disabled={!canSubmit || isSubmitting}
               >
-                Sign in
+                {isSubmitting ? <InlineSpinner /> : "Sign in"}
               </button>
             </form>
           </div>
@@ -85,8 +86,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             }}
           ></div>
           <div className="relative text-center text-white">
-            <h2 className="text-2xl font-medium">Stream. Mix.</h2>
-            <p className="text-xl opacity-70 mt-2">Go live.</p>
+            <h2 className="text-2xl font-medium">Upload. Mix. Go live.</h2>
           </div>
         </section>
       </div>

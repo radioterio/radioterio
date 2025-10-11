@@ -1,26 +1,38 @@
 "use client";
 
-import { LoginView } from "./LoginView";
+import { Login } from "./Login";
+import React, { useState } from "react";
 
 export const LoginContainer: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const canSubmit = email.length > 0 && password.length > 0;
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  };
+
+  const onForgotPasswordClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+  };
+
   return (
-    <LoginView
-      email={""}
-      onEmailChange={function (e: React.ChangeEvent<HTMLInputElement>): void {
-        throw new Error("Function not implemented.");
+    <Login
+      email={email}
+      onEmailChange={(e) => {
+        setEmail(e.target.value);
       }}
-      password={""}
-      onPasswordChange={function (e: React.ChangeEvent<HTMLInputElement>): void {
-        throw new Error("Function not implemented.");
+      password={password}
+      onPasswordChange={(e) => {
+        setPassword(e.target.value);
       }}
-      isSubmitEnabled={false}
-      isSubmitting={false}
-      onSubmitClicked={function (e: React.FormEvent<HTMLFormElement>): void {
-        throw new Error("Function not implemented.");
-      }}
-      onForgotPasswordClicked={function (e: React.MouseEvent<HTMLButtonElement>): void {
-        throw new Error("Function not implemented.");
-      }}
+      canSubmit={canSubmit}
+      isSubmitting={isSubmitting}
+      onSubmit={onSubmit}
+      onForgotPasswordClick={onForgotPasswordClick}
     />
   );
 };
