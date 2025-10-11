@@ -4,17 +4,19 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
       cmake \
+      build-essential \
+      ca-certificates \
       git \
       pkg-config \
-      curl \
-      build-essential \
       libssl-dev \
       libglib2.0-dev \
       gstreamer1.0 \
       libgstreamer-plugins-base1.0-dev \
-      libgstreamer-plugins-bad1.0-dev
+      libgstreamer-plugins-bad1.0-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Rust and Cargo
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -22,26 +24,45 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /src
 
-FROM ubuntu:22.04 AS build-deps
+# Build gstcefsrc plugin
+RUN git clone https://github.com/centricular/gstcefsrc.git && \
+    cd gstcefsrc && \
+    mkdir build && cd build && \
+    cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release .. && \
+    make
 
+# Check whether gstcefsrc plugin was successfully installed
+RUN LD_PRELOAD="gstcefsrc/build/Release/libcef.so" \
+    GST_PLUGIN_PATH="gstcefsrc/build/Release:$GST_PLUGIN_PATH" \
+    gst-inspect-1.0 cefsrc
+
+
+FROM ubuntu:22.04 AS gst
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install GStreamer and dependencies
-RUN apt-get update && \
-    apt-get install -y \
-    curl \
-    xvfb \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-libav \
-    gstreamer1.0 \
-    libgirepository1.0-dev
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      gstreamer1.0-plugins-base \
+      gstreamer1.0-plugins-good \
+      gstreamer1.0-plugins-bad \
+      gstreamer1.0-plugins-ugly \
+      gstreamer1.0-libav \
+      gstreamer1.0 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 
-FROM build-deps AS devenv
+FROM gst AS devenv
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      build-essential \
+      curl \
+      ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG USER=1000:1000
 
@@ -56,7 +77,18 @@ ENV PATH="/opt/rust/bin:${PATH}"
 WORKDIR /code/
 
 
-FROM build-deps AS build
+FROM devenv AS devenv-cef
+
+# Copy compiled GStreamer plugins
+COPY --from=gst-plugins /src/gstcefsrc/build/* /opt/gstcefsrc/
+ENV LD_PRELOAD="/opt/gstcefsrc/libcef.so"
+ENV GST_PLUGIN_PATH="/opt/gstcefsrc:$GST_PLUGIN_PATH"
+
+
+WORKDIR /code/
+
+
+FROM gst AS build
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -69,7 +101,21 @@ COPY packages/rtmp-encoder/src ./src
 
 RUN cargo build --release
 
-FROM build-deps
+
+FROM gst AS with-cef
+
+COPY --from=build /code/target/release/radioterio-rtmp-encoder /radioterio-rtmp-encoder
+COPY packages/rtmp-encoder/entrypoint.sh /entrypoint.sh
+
+# Copy compiled GStreamer plugins
+COPY --from=gst-plugins /src/gstcefsrc/build/* /opt/gstcefsrc/
+ENV LD_PRELOAD="/opt/gstcefsrc/libcef.so"
+ENV GST_PLUGIN_PATH="/opt/gstcefsrc:$GST_PLUGIN_PATH"
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+
+FROM gst
 
 COPY --from=build /code/target/release/radioterio-rtmp-encoder /radioterio-rtmp-encoder
 COPY packages/rtmp-encoder/entrypoint.sh /entrypoint.sh
