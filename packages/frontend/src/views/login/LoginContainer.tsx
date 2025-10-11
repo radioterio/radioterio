@@ -1,7 +1,8 @@
 "use client";
 
-import { Login } from "./Login";
 import React, { useState } from "react";
+import { loginAction } from "@/app/actions";
+import { Login } from "./Login";
 
 export const LoginContainer: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -11,8 +12,27 @@ export const LoginContainer: React.FC = () => {
 
   const canSubmit = email.length > 0 && password.length > 0;
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    try {
+      setIsSubmitting(true);
+      const res = await loginAction(email, password);
+
+      switch (res.type) {
+        case "right": {
+          // TODO: Redirect
+          return;
+        }
+        case "left": {
+          setIsSubmitting(false);
+          // TODO: Draw error
+        }
+      }
+    } catch {
+      setIsSubmitting(false);
+      // TODO: Draw error
+    }
   };
 
   const onForgotPasswordClick = (e: React.MouseEvent<HTMLButtonElement>) => {
