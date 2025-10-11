@@ -36,12 +36,12 @@ export const Login: React.FC<LoginViewProps> = ({
             <div className="flex items-center justify-center pb-6">
               <Image width={128} height={128} alt={"logo"} src={"/images/mor-cover-bg.png"} />
             </div>
-            <h1 className="text-2xl text-center font-semibold mb-14">radioter.io</h1>
+            <h1 className="text-2xl text-center font-semibold mb-10">radioter.io</h1>
             <form className="space-y-4" onSubmit={onSubmit}>
               <input
                 type="email"
                 placeholder="Email"
-                className="w-full rounded-xl border px-4 py-3 outline-none"
+                className="w-full h-12 rounded-xl border px-4 py-3 outline-none"
                 value={email}
                 onChange={onEmailChange}
                 disabled={isSubmitting}
@@ -50,7 +50,7 @@ export const Login: React.FC<LoginViewProps> = ({
                 <input
                   type="password"
                   placeholder="Password"
-                  className="w-full rounded-xl border px-4 py-3 outline-none"
+                  className="w-full h-12 rounded-xl border px-4 py-3 outline-none"
                   value={password}
                   onChange={onPasswordChange}
                   disabled={isSubmitting}
@@ -65,7 +65,7 @@ export const Login: React.FC<LoginViewProps> = ({
               </div>
               <button
                 type="submit"
-                className="w-full rounded-2xl border px-4 py-3 font-medium text-gray-800 bg-white disabled:bg-gray-200 hover:enabled:bg-gray-200 transition-colors"
+                className="w-full h-12 rounded-2xl border px-4 py-2 font-medium text-gray-800 bg-white disabled:bg-gray-200 hover:enabled:bg-gray-200 transition-colors"
                 disabled={!canSubmit || isSubmitting}
               >
                 {isSubmitting ? <InlineSpinner /> : "Sign in"}
