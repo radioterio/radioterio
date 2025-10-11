@@ -50,7 +50,6 @@ export abstract class AuthRouteHandler<T> {
 
   async run(req: express.Request, res: express.Response<T>, next: express.NextFunction) {
     try {
-      console.log(req.headers);
       const authorization = req.get("authorization");
       ok(authorization, ErrorKind.MissingAuthorizationHeader);
 
