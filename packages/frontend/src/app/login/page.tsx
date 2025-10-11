@@ -1,5 +1,5 @@
-import {LoginView} from "@/views/LoginView/LoginView";
+import { LoginContainer } from "@/views/login/LoginContainer";
 
 export default async function Login() {
-  return <LoginView />
+  return <LoginContainer />;
 }
