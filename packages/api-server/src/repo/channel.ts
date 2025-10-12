@@ -94,4 +94,14 @@ export class ChannelRepository {
 
     return mapChannel(row);
   }
+
+  async getChannelCountByUserId(userId: number): Promise<number> {
+    const result = await this.knex
+      .client<StreamRow>(TABLE_NAME)
+      .where("uid", userId)
+      .count<{ count: number }>("sid as count")
+      .first();
+
+    return Number(result?.count ?? 0);
+  }
 }
