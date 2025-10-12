@@ -41,3 +41,40 @@ export async function loginAction(
 
   return right(undefined);
 }
+
+const UserResponseSchema = z.object({
+  id: z.number(),
+  email: z.string(),
+  avatarFileUrl: z.string().nullable(),
+  stats: z.object({
+    channelCount: z.number(),
+    trackCount: z.number(),
+  }),
+});
+
+export type UserResponse = z.TypeOf<typeof UserResponseSchema>;
+
+export async function getUser(): Promise<Either<ServerError | ParseError, UserResponse>> {
+  const c = await cookies();
+  const accessToken = c.get("accessToken");
+  const res = await fetch(`${API_SERVER_URL}/user`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!res.ok) {
+    return left(new ServerError(res.status, await res.text()));
+  }
+
+  const json = await res.json();
+  const result = UserResponseSchema.safeParse(json);
+
+  if (!result.success) {
+    throw new ParseError(result.error.issues.map((issue) => issue.message));
+  }
+
+  return right(result.data);
+}
