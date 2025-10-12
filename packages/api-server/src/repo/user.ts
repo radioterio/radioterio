@@ -2,7 +2,9 @@ import { inject, injectable } from "inversify";
 
 import { KnexClient } from "../db/knex.js";
 
-const tableName = "r_users";
+const TABLE_NAME = "r_users";
+const ROW_FIELDS = ["uid", "mail", "login", "password", "is_enabled", "avatar"] as const;
+type RowFields = (typeof ROW_FIELDS)[number];
 
 interface UserRow {
   readonly uid: number;
@@ -20,7 +22,7 @@ export interface User {
   readonly passwordHash: string;
 }
 
-const mapUser = (row: UserRow): User => ({
+const mapUser = (row: Pick<UserRow, RowFields>): User => ({
   id: row.uid,
   email: row.mail,
   passwordHash: row.password,
@@ -33,10 +35,10 @@ export class UserRepository {
 
   async findOneById(userId: number): Promise<User | null> {
     const userRow = await this.knex
-      .client<UserRow>(tableName)
+      .client<UserRow>(TABLE_NAME)
       .where("uid", userId)
       .where("is_enabled", true)
-      .select("uid", "mail", "login", "password", "is_enabled", "avatar")
+      .select(...ROW_FIELDS)
       .first();
 
     if (!userRow) {
@@ -48,10 +50,10 @@ export class UserRepository {
 
   async findOneByEmail(email: string): Promise<User | null> {
     const userRow = await this.knex
-      .client<UserRow>(tableName)
+      .client<UserRow>(TABLE_NAME)
       .where("mail", email)
       .where("is_enabled", true)
-      .select("uid", "mail", "login", "password", "is_enabled", "avatar")
+      .select(...ROW_FIELDS)
       .first();
 
     if (!userRow) {
