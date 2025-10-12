@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { loginAction } from "@/app/actions";
 import { Login } from "./Login";
 
@@ -9,6 +11,8 @@ export const LoginContainer: React.FC = () => {
   const [password, setPassword] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const router = useRouter();
 
   const canSubmit = email.length > 0 && password.length > 0;
 
@@ -22,8 +26,9 @@ export const LoginContainer: React.FC = () => {
       switch (res.type) {
         case "right": {
           // TODO: Redirect
-          return;
+          return router.replace("/profile");
         }
+
         case "left": {
           setIsSubmitting(false);
           // TODO: Draw error

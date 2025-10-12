@@ -56,12 +56,13 @@ export type UserResponse = z.TypeOf<typeof UserResponseSchema>;
 
 export async function getUser(): Promise<Either<ServerError | ParseError, UserResponse>> {
   const c = await cookies();
-  const accessToken = c.get("accessToken");
+  const accessTokenCookie = c.get("accessToken");
+
   const res = await fetch(`${API_SERVER_URL}/user`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessTokenCookie?.value}`,
     },
   });
 
