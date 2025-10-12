@@ -42,6 +42,12 @@ export async function loginAction(
   return right(undefined);
 }
 
+export async function logout() {
+  const c = await cookies();
+
+  c.delete("accessToken");
+}
+
 const UserResponseSchema = z.object({
   id: z.number(),
   email: z.string(),
