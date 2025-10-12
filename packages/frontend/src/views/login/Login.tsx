@@ -31,7 +31,7 @@ export const Login: React.FC<LoginViewProps> = ({
       <div className="md:grid md:grid-cols-2">
         {/* Left / Top panel */}
         <section className="relative h-screen md:h-screen flex items-start md:items-center justify-center px-6 py-12 md:py-6">
-          <div className="absolute inset-0 bg-linear-to-br from-yellow-500 to-pink-500 opacity-15"></div>
+          <div className="absolute inset-0 bg-linear-to-br from-pink-500 to-yellow-500 opacity-5"></div>
           <div className="relative w-full max-w-sm">
             <div className="flex items-center justify-center pb-6">
               <Image width={128} height={128} alt={"logo"} src={"/images/mor-cover-bg.png"} />
