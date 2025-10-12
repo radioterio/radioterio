@@ -79,6 +79,7 @@ pub(crate) fn make_output(
 pub(crate) enum VideoEncoder {
     Software,
     VA,
+    V4L2,
 }
 
 pub(crate) fn make_video_encoder(
@@ -88,6 +89,7 @@ pub(crate) fn make_video_encoder(
     video_bitrate: u32,
     video_framerate: u32,
     video_profile: &Option<String>,
+    video_level: &Option<String>,
     video_encoder: &VideoEncoder,
 ) -> (gstreamer::Element, gstreamer::Element) {
     let queue_in = make_element("queue");
@@ -116,6 +118,18 @@ pub(crate) fn make_video_encoder(
             vaapih264enc.set_property_from_str("rate-control", "cbr");
             vaapih264enc
         }
+        VideoEncoder::V4L2 => {
+            let v412h264enc = make_element("v4l2h264enc");
+            let frame_period = video_framerate * 2;
+            let structure = gstreamer::Structure::builder("encode")
+                .field("video_bitrate_mode", "1")
+                .field("video_bitrate", video_bitrate)
+                .field("h264_i_frame_period", frame_period)
+                .field("gop_size", frame_period)
+                .build();
+            v412h264enc.set_property("extra-controls", structure);
+            v412h264enc
+        }
     };
 
     let h264parse = make_element("h264parse");
@@ -123,6 +137,9 @@ pub(crate) fn make_video_encoder(
         let mut caps_builder = gstreamer::Caps::builder("video/x-h264");
         if let Some(profile) = video_profile {
             caps_builder = caps_builder.field("profile", profile)
+        }
+        if let Some(level) = video_level {
+            caps_builder = caps_builder.field("level", level)
         }
         make_capsfilter(&caps_builder.build())
     };

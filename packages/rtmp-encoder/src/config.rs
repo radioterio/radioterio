@@ -13,6 +13,8 @@ pub(crate) struct VideoSettings {
     pub(crate) framerate: u32,
     #[serde(rename = "video_profile")]
     pub(crate) profile: Option<String>,
+    #[serde(rename = "video_level")]
+    pub(crate) level: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -28,6 +30,7 @@ pub(crate) struct AudioSettings {
 #[derive(Deserialize)]
 pub(crate) enum VideoAcceleration {
     VAAPI,
+    V4L2,
 }
 
 #[derive(Deserialize)]

@@ -20,6 +20,7 @@ pub(crate) fn main() {
     let video_encoder = match config.video_acceleration {
         None => VideoEncoder::Software,
         Some(VideoAcceleration::VAAPI) => VideoEncoder::VA,
+        Some(VideoAcceleration::V4L2) => VideoEncoder::V4L2,
     };
     let (video_sink, video_src) = make_video_encoder(
         &pipeline,
@@ -28,6 +29,7 @@ pub(crate) fn main() {
         config.video.bitrate,
         config.video.framerate,
         &config.video.profile,
+        &config.video.level,
         &video_encoder,
     );
     let (audio_sink, audio_src) = make_audio_encoder(
