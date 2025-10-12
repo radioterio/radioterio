@@ -9,12 +9,14 @@ interface UserRow {
   readonly mail: string;
   readonly login: string;
   readonly password: string;
+  readonly avatar: string | null;
   readonly is_enabled: boolean;
 }
 
 export interface User {
   readonly id: number;
   readonly email: string;
+  readonly avatarFile: string | null;
   readonly passwordHash: string;
 }
 
@@ -22,6 +24,7 @@ const mapUser = (row: UserRow): User => ({
   id: row.uid,
   email: row.mail,
   passwordHash: row.password,
+  avatarFile: row.avatar,
 });
 
 @injectable()
@@ -33,7 +36,7 @@ export class UserRepository {
       .client<UserRow>(tableName)
       .where("uid", userId)
       .where("is_enabled", true)
-      .select("uid", "mail", "login", "password", "is_enabled")
+      .select("uid", "mail", "login", "password", "is_enabled", "avatar")
       .first();
 
     if (!userRow) {
@@ -48,7 +51,7 @@ export class UserRepository {
       .client<UserRow>(tableName)
       .where("mail", email)
       .where("is_enabled", true)
-      .select("uid", "mail", "login", "password", "is_enabled")
+      .select("uid", "mail", "login", "password", "is_enabled", "avatar")
       .first();
 
     if (!userRow) {
