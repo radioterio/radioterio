@@ -50,6 +50,8 @@ RUN apt-get update \
       gstreamer1.0-plugins-ugly \
       gstreamer1.0-libav \
       gstreamer1.0 \
+      ca-certificates \
+      openssl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -60,7 +62,6 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       build-essential \
       curl \
-      ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -98,7 +99,6 @@ FROM gst AS build
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       curl \
-      ca-certificates \
       build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
