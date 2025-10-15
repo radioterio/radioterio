@@ -53,6 +53,7 @@ RUN apt-get update \
       gstreamer1.0 \
       ca-certificates \
       openssl \
+      i965-va-driver \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
