@@ -4,7 +4,7 @@ set -e
 docker build -t radioterio-rtmp-encoder-dev \
              --build-arg USER="$(id -u):$(id -g)" \
              -f Dockerfile \
-             --target devenv-cef .
+             --target devenv .
 
 mkdir -p .cargo-cache/git
 mkdir -p .cargo-cache/registry

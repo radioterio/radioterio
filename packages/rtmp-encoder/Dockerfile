@@ -53,12 +53,14 @@ RUN apt-get update \
       gstreamer1.0 \
       ca-certificates \
       openssl \
-      i965-va-driver \
+    && apt-get install -y --no-install-recommends i965-va-driver || echo "i965-va-driver not available" \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 
 FROM gst AS devenv
+
+ARG USER=1000:1000
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -67,20 +69,27 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ARG USER=1000:1000
+# Home-like directory for the unprivileged user’s Rust toolchain
+RUN mkdir -p /rust && chown -R ${USER} /rust
+USER ${USER}
 
-# Install Rust and Cargo helpers
-ENV RUSTUP_HOME=/opt/rust
-ENV CARGO_HOME=/opt/rust
+# Make cargo/rustup live under /rust and be on PATH for subsequent layers
+ENV HOME=/rust \
+    RUSTUP_HOME=/rust/rustup \
+    CARGO_HOME=/rust/.cargo \
+    PATH=/rust/.cargo/bin:$PATH
 
-RUN mkdir /opt/rust && chown $USER /opt/rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-ENV PATH="/opt/rust/bin:${PATH}"
+# Install rustup + stable toolchain (minimal profile), then common components
+RUN set -eux; \
+    curl --proto '=https' --tlsv1.2 -fsS https://sh.rustup.rs \
+      | sh -s -- -y --default-toolchain stable --profile minimal; \
+    rustup component add rustfmt clippy; \
+    rustc -V && cargo -V && rustup -V
 
 WORKDIR /code/
 
 
-FROM devenv AS devenv-cef
+FROM gst AS devenv-cef
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
