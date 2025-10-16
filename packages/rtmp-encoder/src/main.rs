@@ -1,4 +1,5 @@
 use crate::config::{Config, VideoAcceleration};
+use crate::gstreamer_utils::make_element;
 use crate::stream_utils::{
     StreamOutput, VideoEncoder, make_audio_encoder, make_audio_input, make_output,
     make_video_encoder, make_video_input,
@@ -57,8 +58,13 @@ pub(crate) fn main() {
     );
     let audioinputsrc = make_audio_input(&pipeline, &audio_url);
 
+    let audiomixer = make_element("audiomixer");
+
+    pipeline.add(&audiomixer).unwrap();
+
     gstreamer::Element::link_many(&[&videoinputsrc, &video_sink]).expect("Unable to link elements");
-    gstreamer::Element::link_many(&[&audioinputsrc, &audio_sink]).expect("Unable to link elements");
+    gstreamer::Element::link_many(&[&audioinputsrc, &audiomixer, &audio_sink])
+        .expect("Unable to link elements");
 
     video_src
         .static_pad("src")
