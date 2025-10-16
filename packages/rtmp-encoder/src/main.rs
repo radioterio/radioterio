@@ -50,20 +50,24 @@ pub(crate) fn main() {
         "data:text/html;base64,{}",
         gstreamer::glib::base64_encode(html)
     );
-    let videoinputsrc = make_video_input(&pipeline, &video_url);
+    let videoinput_src = make_video_input(&pipeline, &video_url);
 
     let audio_url = format!(
         "{}/user/{}/channel/{}/stream",
         config.playback_server_url, config.user_id, config.channel_id
     );
-    let audioinputsrc = make_audio_input(&pipeline, &audio_url);
+    let audioinput_src = make_audio_input(&pipeline, &audio_url);
 
     let audiomixer = make_element("audiomixer");
+    let clockoverlay = make_element("clockoverlay");
 
-    pipeline.add(&audiomixer).unwrap();
+    pipeline
+        .add_many(&[&audiomixer, &clockoverlay])
+        .expect("Unable to add elements");
 
-    gstreamer::Element::link_many(&[&videoinputsrc, &video_sink]).expect("Unable to link elements");
-    gstreamer::Element::link_many(&[&audioinputsrc, &audiomixer, &audio_sink])
+    gstreamer::Element::link_many(&[&videoinput_src, &clockoverlay, &video_sink])
+        .expect("Unable to link elements");
+    gstreamer::Element::link_many(&[&audioinput_src, &audiomixer, &audio_sink])
         .expect("Unable to link elements");
 
     video_src
