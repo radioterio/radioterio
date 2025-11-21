@@ -37,7 +37,11 @@ export async function loginAction(
     throw new ParseError(result.error.issues.map((issue) => issue.message));
   }
 
-  c.set("accessToken", result.data.accessToken, { httpOnly: true });
+  c.set("accessToken", result.data.accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
 
   return right(undefined);
 }

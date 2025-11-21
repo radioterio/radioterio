@@ -5,8 +5,17 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "predev": "npm run build:deps",
+    "dev": "concurrently -n api,playback,frontend -c blue,green,yellow \"npm run dev:api\" \"npm run dev:playback\" \"npm run dev:frontend\"",
+    "dev:api": "npm run dev -w @radioterio/api-server",
+    "dev:playback": "npm run dev -w @radioterio/playback-server",
+    "dev:frontend": "npm run dev -w @radioterio/frontend",
+    "build:deps": "npm run build -w @radioterio/common"
+  },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
+    "concurrently": "^9.1.2",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
