@@ -14,7 +14,7 @@ export async function main() {
 
   const { port } = config;
 
-  const server = app.listen(port, (err) => {
+  app.listen(port, (err) => {
     if (err) {
       debug("Failed to start server: %s", err.message);
       process.exit(1);
