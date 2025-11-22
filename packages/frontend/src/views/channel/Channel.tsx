@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChannelResponse, ChannelTrack } from "@/app/actions";
 import { getStatusColor } from "@/common/status-color";
 import { NowPlayingPosition } from "@/components/NowPlayingPosition/NowPlayingPosition";
+import { ChannelPreview } from "@/components/ChannelPreview/ChannelPreview";
 
 interface ChannelProps {
   readonly channel: ChannelResponse;
@@ -37,6 +38,9 @@ export const Channel: React.FC<ChannelProps> = ({
         {/* Left panel - Channel info (top on mobile) */}
         <section className="md:border-r md:border-gray-200 md:overflow-y-auto bg-white border-b md:border-b-0 border-gray-200">
           <div className="p-6 space-y-6">
+            {/* Channel Preview */}
+            <ChannelPreview channelId={channel.id} channelStatus={channel.status} />
+
             {/* Cover */}
             <div className="flex justify-center">
               {channel.coverFileUrl ? (
