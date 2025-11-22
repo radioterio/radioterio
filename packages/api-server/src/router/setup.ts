@@ -7,6 +7,7 @@ import { errorMiddleware } from "./middleware/error.js";
 import { HealthRouteHandler } from "./routes/health.js";
 import { GetUserController } from "./routes/user/get-user.js";
 import { GetChannelsController } from "./routes/channel/get-channels.js";
+import { GetChannelController } from "./routes/channel/get-channel.js";
 import { GetChannelsTracksController } from "./routes/channel/get-channel-tracks.js";
 import { GetNowPlayingController } from "./routes/channel/get-now-playing.js";
 import { LoginRouteHandler } from "./routes/auth/login.js";
@@ -18,6 +19,7 @@ export function setupRouter(app: Application) {
   router.get("/health", bind(HealthRouteHandler));
   router.get("/user", bind(GetUserController));
   router.get("/channels", bind(GetChannelsController));
+  router.get("/channels/:channelId", bind(GetChannelController));
   router.get("/channels/:channelId/tracks", bind(GetChannelsTracksController));
   router.get("/channels/:channelId/now-playing-at/:timestamp", bind(GetNowPlayingController));
   router.post("/auth/login", bodyParser.json(), bind(LoginRouteHandler));

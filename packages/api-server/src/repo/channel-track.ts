@@ -117,4 +117,16 @@ export class ChannelTrackRepository {
 
     return mapChannelTrack(row);
   }
+
+  async getTrackCount(channelId: number, userId: number): Promise<number> {
+    const result = await this.knex
+      .client<TrackRow>(tracksTableName)
+      .join<LinkRow>(linksTableName, `track_id`, `tid`)
+      .where("uid", userId)
+      .where("stream_id", channelId)
+      .count<{ count: number }>("tid as count")
+      .first();
+
+    return Number(result?.count ?? 0);
+  }
 }
