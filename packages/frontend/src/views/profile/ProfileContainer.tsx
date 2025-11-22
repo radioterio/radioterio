@@ -5,17 +5,18 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { Either } from "@/common/either-lite";
-import { logout, UserResponse } from "@/app/actions";
+import { logout, UserResponse, Channel } from "@/app/actions";
+import { getStatusColor } from "@/common/status-color";
 
 interface ProfileContainerProps {
   readonly user: Either<unknown, UserResponse>;
+  readonly channels: Either<unknown, Channel[]>;
 }
 
-export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user }) => {
+export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user, channels }) => {
   const router = useRouter();
 
   const handleLogoutClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log("logout clock");
     e.preventDefault();
     try {
       await logout();
@@ -25,71 +26,138 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user }) => {
     }
   };
 
-  switch (user.type) {
-    case "right": {
-      const { avatarFileUrl, email, stats } = user.right;
-      return (
-        <div className="relative min-h-screen flex items-start md:items-center justify-center">
-          <div className="absolute inset-0 bg-linear-to-br from-pink-500 to-yellow-500 opacity-5"></div>
-          <div className="relative px-8 py-10 w-full max-w-md flex flex-col items-center">
-            {/* Avatar */}
-            <div className="mb-6">
-              {avatarFileUrl ? (
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-100 shadow-lg flex items-center justify-center bg-gray-50">
-                  <Image
-                    width={128}
-                    height={128}
-                    alt="avatar"
-                    src={avatarFileUrl}
-                    className="object-cover w-32 h-32"
-                  />
-                </div>
-              ) : (
-                <div className="w-32 h-32 rounded-full flex items-center justify-center text-gray-100 text-lg font-medium border-4 border-gray-200 shadow-lg">
-                  No avatar
-                </div>
-              )}
-            </div>
-            {/* Email */}
-            <div className="mb-8 text-center">
-              <div className="text-md font-light">{email}</div>
-            </div>
-            {/* Stats */}
-            <div className="w-full">
-              <div className="font-semibold text-center mb-4">Stats</div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="py-5 flex flex-col items-center">
-                  <div className="text-xs uppercase tracking-wide mb-1">Channels</div>
-                  <div className="text-2xl font-bold">{stats.channelCount}</div>
-                </div>
-                <div className="py-5 flex flex-col items-center">
-                  <div className="text-xs uppercase tracking-wide mb-1">Tracks</div>
-                  <div className="text-2xl font-bold">{stats.trackCount}</div>
-                </div>
-              </div>
-            </div>
-            <button
-              className="mt-8 w-full h-12 rounded-2xl border px-4 py-2 font-medium text-gray-800 bg-white hover:bg-gray-200 transition-colors"
-              onClick={handleLogoutClick}
-            >
-              Log out
-            </button>
-          </div>
+  const handleChannelClick = (channelId: number) => {
+    router.push(`/channel/${channelId}`);
+  };
+
+  if (user.type === "left" || channels.type === "left") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white rounded-lg border border-gray-200 px-8 py-10 w-full max-w-md flex flex-col items-center">
+        <div className="text-red-600 font-semibold mb-2">Error</div>
+        <pre className="text-xs text-gray-500 whitespace-pre-wrap">
+            {JSON.stringify(user.type === "left" ? user.left : channels.left, null, 2)}
+          </pre>
         </div>
-      );
-    }
-    case "left": {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-100 via-white to-gray-200">
-          <div className="bg-white/80 rounded-xl shadow-lg px-8 py-10 w-full max-w-md flex flex-col items-center">
-            <div className="text-red-600 font-semibold mb-2">Error</div>
-            <pre className="text-xs text-gray-500 whitespace-pre-wrap">
-              {JSON.stringify(user.left, null, 2)}
-            </pre>
-          </div>
-        </div>
-      );
-    }
+      </div>
+    );
   }
-  return null;
+
+  const { avatarFileUrl, email } = user.right;
+  const channelsList = channels.right;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="md:grid md:grid-cols-2 md:h-screen">
+        {/* Left panel - Channels list */}
+        <section className="md:border-r md:border-gray-200 md:overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Channels</h2>
+              <button
+                onClick={handleLogoutClick}
+                className="text-sm text-gray-600 px-3 py-1 rounded"
+              >
+                Log out
+              </button>
+            </div>
+
+            {channelsList.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No channels yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {channelsList.map((channel) => (
+                  <button
+                    key={channel.id}
+                    onClick={() => handleChannelClick(channel.id)}
+                    className="w-full p-4 rounded-lg border border-gray-200 bg-white text-left"
+                  >
+                    <div className="flex items-center gap-4">
+                      {channel.coverFileUrl ? (
+                        <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                          <Image
+                            src={channel.coverFileUrl}
+                            alt={channel.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="w-16 h-16 rounded-lg flex-shrink-0 flex items-center justify-center text-gray-400 text-xs"
+                          style={{
+                            backgroundColor: channel.coverBackgroundColor || "#f3f4f6",
+                          }}
+                        >
+                          No cover
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium text-gray-900 truncate">{channel.title}</h3>
+                          <div
+                            className={`w-2 h-2 rounded-full flex-shrink-0 ${getStatusColor(
+                              channel.status,
+                            )}`}
+                            title={channel.status}
+                          />
+                        </div>
+                        <p className="text-sm text-gray-500">{channel.status}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Right panel - TBD placeholder */}
+        <section className="hidden md:flex md:items-center md:justify-center md:bg-gray-100">
+          <div className="text-center p-8">
+            <div className="text-gray-400 mb-2">
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            </div>
+            <p className="text-gray-500 text-sm">TBD</p>
+          </div>
+        </section>
+      </div>
+
+      {/* Mobile: TBD section below channels */}
+      <section className="md:hidden border-t border-gray-200 p-6 bg-gray-100">
+        <div className="text-center">
+          <div className="text-gray-400 mb-2">
+            <svg
+              className="w-12 h-12 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-500 text-sm">TBD</p>
+        </div>
+      </section>
+    </div>
+  );
 };

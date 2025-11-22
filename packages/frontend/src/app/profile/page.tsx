@@ -1,8 +1,8 @@
 import { ProfileContainer } from "@/views/profile/ProfileContainer";
-import { getUser } from "@/app/actions";
+import { getUser, getChannels } from "@/app/actions";
 
 export default async function Profile() {
-  const user = await getUser();
+  const [user, channels] = await Promise.all([getUser(), getChannels()]);
 
-  return <ProfileContainer user={user} />;
+  return <ProfileContainer user={user} channels={channels} />;
 }
