@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Channel } from "./Channel";
-import { ChannelResponse, ChannelTrack, getChannelTracks } from "@/app/actions";
+import { ChannelResponse, ChannelTrack, getChannelTracks, seekChannel } from "@/app/actions";
 import { useNowPlaying } from "@/hooks/useNowPlaying";
 
 interface ChannelContainerProps {
@@ -91,6 +91,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
         title: nowPlayingData.track.title,
         artist: nowPlayingData.track.artist,
         duration: nowPlayingData.track.duration,
+        offset: nowPlayingData.track.offset,
         trackUrl: nowPlayingData.track.trackUrl,
       };
       return { track: tempTrack, position: nowPlayingData.position };
@@ -98,6 +99,16 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
   })();
 
   const placeholderCount = channel.totalTrackCount - tracks.length;
+
+  const handleSeek = useCallback(
+    async (offset: number) => {
+      const result = await seekChannel(channel.id, offset);
+      if (result.type === "left") {
+        console.error("Failed to seek:", result.left);
+      }
+    },
+    [channel.id],
+  );
 
   return (
     <Channel
@@ -109,6 +120,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
       observerTarget={observerTarget}
       isLoading={isLoading}
       userId={userId}
+      onSeek={handleSeek}
     />
   );
 };

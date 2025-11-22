@@ -6,6 +6,7 @@ import { ChannelResponse, ChannelTrack } from "@/app/actions";
 import { getStatusColor } from "@/common/status-color";
 import { NowPlayingPosition } from "@/components/NowPlayingPosition/NowPlayingPosition";
 import { ChannelPreview } from "@/components/ChannelPreview/ChannelPreview";
+import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
 interface ChannelProps {
   readonly channel: ChannelResponse;
@@ -16,6 +17,7 @@ interface ChannelProps {
   readonly observerTarget: RefObject<HTMLDivElement>;
   readonly isLoading: boolean;
   readonly userId: number;
+  readonly onSeek: (offset: number) => void;
 }
 
 const formatDuration = (seconds: number): string => {
@@ -33,6 +35,7 @@ export const Channel: React.FC<ChannelProps> = ({
   observerTarget,
   isLoading,
   userId,
+  onSeek,
 }) => {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -45,46 +48,107 @@ export const Channel: React.FC<ChannelProps> = ({
               <ChannelPreview channelId={channel.id} channelStatus={channel.status} userId={userId} />
             </div>
 
-            {/* Play controls */}
-            <div className="flex justify-center gap-3">
-              <button className="px-6 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 font-medium">
-                Play
-              </button>
-              <button className="px-6 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 font-medium">
-                Pause
-              </button>
-              <button className="px-6 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 font-medium">
-                Stop
-              </button>
-            </div>
+            {/* Player Controls Panel */}
+            <div className="-mx-6 -mt-6 bg-white px-6 py-3 border-t border-gray-200">
+              {nowPlaying ? (
+                <>
+                  {/* Track info */}
+                  <div className="mb-3">
+                    <div className="text-sm text-gray-600 text-center truncate">
+                      {nowPlaying.track.artist} - <span className="font-medium text-gray-900">{nowPlaying.track.title}</span>
+                    </div>
+                  </div>
 
-            {/* Streaming monitoring */}
-            {nowPlaying && (
-              <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
-                <div className="text-sm font-medium text-gray-900 mb-2">Now Playing</div>
-                <div className="text-sm text-gray-700">
-                  <div className="font-medium">{nowPlaying.track.title}</div>
-                  <div className="text-gray-600">{nowPlaying.track.artist}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Position:{" "}
-                    <NowPlayingPosition
-                      initialPosition={nowPlaying.position}
-                      maxPosition={nowPlaying.track.duration}
-                      formatDuration={formatDuration}
+                  {/* Controls */}
+                  <div className="flex items-center justify-center gap-4 mb-3">
+                    {/* Previous track */}
+                    <button className="w-10 h-10 flex items-center justify-center cursor-default">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-6 h-6 text-gray-900"
+                      >
+                        <polygon points="19 20 9 12 19 4 19 20" />
+                        <line x1="5" y1="19" x2="5" y2="5" />
+                      </svg>
+                    </button>
+
+                    {/* Play/Pause */}
+                    <button className="w-12 h-12 flex items-center justify-center cursor-default">
+                      {channel.status === "Started" ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="w-8 h-8 text-gray-900"
+                        >
+                          <rect x="6" y="4" width="4" height="16" />
+                          <rect x="14" y="4" width="4" height="16" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="w-8 h-8 text-gray-900"
+                        >
+                          <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Next track */}
+                    <button className="w-10 h-10 flex items-center justify-center cursor-default">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-6 h-6 text-gray-900"
+                      >
+                        <polygon points="5 4 15 12 5 20 5 4" />
+                        <line x1="19" y1="5" x2="19" y2="19" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Progress bar and time */}
+                  <div>
+                    <div className="flex items-center justify-between gap-4 mb-1.5">
+                      <span className="text-xs text-gray-600">
+                        <NowPlayingPosition
+                          initialPosition={nowPlaying.position}
+                          maxPosition={nowPlaying.track.duration}
+                          formatDuration={formatDuration}
+                        />
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        {formatDuration(nowPlaying.track.duration / 1000)}
+                      </span>
+                    </div>
+                    <ProgressBar
+                      position={nowPlaying.position}
+                      duration={nowPlaying.track.duration}
+                      withProgressing={channel.status === "Started"}
+                      onSeek={(position) => {
+                        // Calculate offset: current track offset + position within track
+                        const trackOffset = "offset" in nowPlaying.track ? nowPlaying.track.offset : 0;
+                        onSeek(trackOffset + position);
+                      }}
                     />
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Stats */}
-            <div className="pt-4 border-t border-gray-200">
-              <div className="text-sm text-gray-600">
-                <div className="flex justify-between mb-1">
-                  <span>Total tracks:</span>
-                  <span className="font-medium text-gray-900">{channel.totalTrackCount}</span>
-                </div>
-              </div>
+                </>
+              ) : (
+                <div className="py-2 text-center text-sm text-gray-500">No track playing</div>
+              )}
             </div>
           </div>
         </section>
@@ -127,7 +191,13 @@ export const Channel: React.FC<ChannelProps> = ({
               </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-900">Tracklist</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Tracklist</h2>
+              <div className="text-sm text-gray-600">
+                <span>Total tracks: </span>
+                <span className="font-medium text-gray-900">{channel.totalTrackCount}</span>
+              </div>
+            </div>
             <div className="space-y-0">
               {/* Rendered tracks */}
               {tracks.map((track, index) => {
