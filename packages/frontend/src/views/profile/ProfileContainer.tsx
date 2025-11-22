@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Either } from "@/common/either-lite";
 import { logout, UserResponse, Channel } from "@/app/actions";
 import { getStatusColor } from "@/common/status-color";
+import { UnderConstruction } from "@/components/UnderConstruction/UnderConstruction";
 
 interface ProfileContainerProps {
   readonly user: Either<unknown, UserResponse>;
@@ -114,49 +115,15 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user, channe
           </div>
         </section>
 
-        {/* Right panel - TBD placeholder */}
-        <section className="hidden md:flex md:items-center md:justify-center md:bg-gray-100">
-          <div className="text-center p-8">
-            <div className="text-gray-400 mb-2">
-              <svg
-                className="w-16 h-16 mx-auto"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            </div>
-            <p className="text-gray-500 text-sm">TBD</p>
-          </div>
+        {/* Right panel - Under construction */}
+        <section className="hidden md:flex md:bg-gray-100">
+          <UnderConstruction />
         </section>
       </div>
 
-      {/* Mobile: TBD section below channels */}
-      <section className="md:hidden border-t border-gray-200 p-6 bg-gray-100">
-        <div className="text-center">
-          <div className="text-gray-400 mb-2">
-            <svg
-              className="w-12 h-12 mx-auto"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-          </div>
-          <p className="text-gray-500 text-sm">TBD</p>
-        </div>
+      {/* Mobile: Under construction section below channels */}
+      <section className="md:hidden border-t border-gray-200 bg-gray-100" style={{ minHeight: "200px" }}>
+        <UnderConstruction />
       </section>
     </div>
   );

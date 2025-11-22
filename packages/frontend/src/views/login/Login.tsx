@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { InlineSpinner } from "@/components/InlineSpinner/InlineSpinner";
+import { UnderConstruction } from "@/components/UnderConstruction/UnderConstruction";
 
 export interface LoginViewProps {
   readonly email: string;
@@ -98,20 +99,9 @@ export const Login: React.FC<LoginViewProps> = ({
           </div>
         </section>
 
-        {/* Right panel - Descriptive text (hidden on mobile) */}
-        <section className="hidden md:flex relative h-screen items-center justify-center p-20 bg-cover bg-center">
-          <div
-            className="absolute inset-0 bg-black bg-opacity-60"
-            style={{
-              backgroundImage: "url('/images/radio-image.jpg')",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center center",
-              backgroundSize: "cover",
-            }}
-          ></div>
-          <div className="relative text-center text-white">
-            <h2 className="text-2xl font-medium">Upload. Mix. Go live.</h2>
-          </div>
+        {/* Right panel - Under construction (hidden on mobile) */}
+        <section className="hidden md:flex relative h-screen bg-gray-100">
+          <UnderConstruction />
         </section>
       </div>
     </div>
