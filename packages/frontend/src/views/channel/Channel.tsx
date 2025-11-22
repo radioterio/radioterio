@@ -4,6 +4,7 @@ import React, { RefObject } from "react";
 import Image from "next/image";
 import { ChannelResponse, ChannelTrack } from "@/app/actions";
 import { getStatusColor } from "@/common/status-color";
+import { NowPlayingPosition } from "@/components/NowPlayingPosition/NowPlayingPosition";
 
 interface ChannelProps {
   readonly channel: ChannelResponse;
@@ -92,8 +93,12 @@ export const Channel: React.FC<ChannelProps> = ({
                   <div className="font-medium">{nowPlaying.track.title}</div>
                   <div className="text-gray-600">{nowPlaying.track.artist}</div>
                   <div className="text-xs text-gray-500 mt-1">
-                    Position: {formatDuration(nowPlaying.position / 1000)} /{" "}
-                    {formatDuration(nowPlaying.track.duration / 1000)}
+                    Position:{" "}
+                    <NowPlayingPosition
+                      initialPosition={nowPlaying.position}
+                      maxPosition={nowPlaying.track.duration}
+                      formatDuration={formatDuration}
+                    />
                   </div>
                 </div>
               </div>
