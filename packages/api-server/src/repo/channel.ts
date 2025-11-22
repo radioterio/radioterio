@@ -128,4 +128,16 @@ export class ChannelRepository {
         started_from: offset,
       });
   }
+
+  async pauseChannel(channelId: number, userId: number, offset: number = 0): Promise<void> {
+    await this.knex
+      .client<StreamRow>(TABLE_NAME)
+      .where("sid", channelId)
+      .where("uid", userId)
+      .update({
+        status: 2, // Paused
+        started: null,
+        started_from: offset,
+      });
+  }
 }

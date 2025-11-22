@@ -12,6 +12,7 @@ import { GetChannelsTracksController } from "./routes/channel/get-channel-tracks
 import { GetNowPlayingController } from "./routes/channel/get-now-playing.js";
 import { StopChannelController } from "./routes/channel/stop-channel.js";
 import { PlayChannelController } from "./routes/channel/play-channel.js";
+import { PauseChannelController } from "./routes/channel/pause-channel.js";
 import { LoginRouteHandler } from "./routes/auth/login.js";
 
 export function setupRouter(app: Application) {
@@ -25,6 +26,7 @@ export function setupRouter(app: Application) {
   router.get("/channels/:channelId/tracks", bind(GetChannelsTracksController));
   router.get("/channels/:channelId/now-playing-at/:timestamp", bind(GetNowPlayingController));
   router.post("/channels/:channelId/play", bodyParser.json(), bind(PlayChannelController));
+  router.post("/channels/:channelId/pause", bodyParser.json(), bind(PauseChannelController));
   router.post("/channels/:channelId/stop", bind(StopChannelController));
   router.post("/auth/login", bodyParser.json(), bind(LoginRouteHandler));
 
