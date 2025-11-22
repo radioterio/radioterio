@@ -116,4 +116,16 @@ export class ChannelRepository {
         started_from: null,
       });
   }
+
+  async playChannel(channelId: number, userId: number, offset: number = 0): Promise<void> {
+    await this.knex
+      .client<StreamRow>(TABLE_NAME)
+      .where("sid", channelId)
+      .where("uid", userId)
+      .update({
+        status: 1, // Started
+        started: Date.now(),
+        started_from: offset,
+      });
+  }
 }
