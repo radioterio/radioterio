@@ -51,7 +51,10 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
           loadMoreTracks();
         }
       },
-      { threshold: 0.1 },
+      {
+        threshold: 0.1,
+        rootMargin: "200px", // Trigger 200px before the target is visible
+      },
     );
 
     const currentTarget = observerTarget.current;

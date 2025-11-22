@@ -155,6 +155,9 @@ export const Channel: React.FC<ChannelProps> = ({
                 );
               })}
 
+              {/* Observer target - placed right after tracks, before placeholders */}
+              {placeholderCount > 0 && <div ref={observerTarget} style={{ height: "1px" }} />}
+
               {/* Placeholders */}
               {Array.from({ length: placeholderCount }).map((_, index) => (
                 <div
@@ -169,9 +172,6 @@ export const Channel: React.FC<ChannelProps> = ({
                   <div className="h-4 bg-gray-300 rounded w-12 flex-shrink-0"></div>
                 </div>
               ))}
-
-              {/* Observer target for infinite scroll */}
-              <div ref={observerTarget} style={{ height: "1px" }} />
 
               {/* Loading indicator */}
               {isLoading && (
