@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { Either } from "@/common/either-lite";
 import { logout, UserResponse, Channel } from "@/app/actions";
 import { getStatusColor } from "@/common/status-color";
-import { UnderConstruction } from "@/components/UnderConstruction/UnderConstruction";
 
 interface ProfileContainerProps {
   readonly user: Either<unknown, UserResponse>;
@@ -44,24 +43,68 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user, channe
     );
   }
 
-  const { avatarFileUrl, email } = user.right;
+  const { avatarFileUrl, email, stats } = user.right;
   const channelsList = channels.right;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="md:grid md:grid-cols-2 md:h-screen">
-        {/* Left panel - Channels list */}
-        <section className="md:border-r md:border-gray-200 md:overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Channels</h2>
-              <button
-                onClick={handleLogoutClick}
-                className="text-sm text-gray-600 px-3 py-1 rounded"
-              >
-                Log out
-              </button>
+      <div className="md:grid md:grid-cols-2 md:h-screen flex flex-col md:flex-row">
+        {/* Left panel - Profile info (top on mobile) */}
+        <section className="md:border-r md:border-gray-200 flex items-start md:items-center justify-center bg-white border-b md:border-b-0 border-gray-200">
+          <div className="px-8 py-10 w-full max-w-md flex flex-col items-center">
+            {/* Avatar */}
+            <div className="mb-6">
+              {avatarFileUrl ? (
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-50">
+                  <Image
+                    width={128}
+                    height={128}
+                    alt="avatar"
+                    src={avatarFileUrl}
+                    className="object-cover w-32 h-32"
+                  />
+                </div>
+              ) : (
+                <div className="w-32 h-32 rounded-full flex items-center justify-center text-gray-400 text-lg font-medium border-4 border-gray-200 bg-gray-50">
+                  No avatar
+                </div>
+              )}
             </div>
+
+            {/* Email */}
+            <div className="mb-8 text-center">
+              <div className="text-md font-light text-gray-900">{email}</div>
+            </div>
+
+            {/* Stats */}
+            <div className="w-full mb-8">
+              <div className="font-semibold text-center mb-4 text-gray-900">Stats</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="py-5 flex flex-col items-center border border-gray-200 rounded-lg bg-white">
+                  <div className="text-xs uppercase tracking-wide mb-1 text-gray-500">Channels</div>
+                  <div className="text-2xl font-bold text-gray-900">{stats.channelCount}</div>
+                </div>
+                <div className="py-5 flex flex-col items-center border border-gray-200 rounded-lg bg-white">
+                  <div className="text-xs uppercase tracking-wide mb-1 text-gray-500">Tracks</div>
+                  <div className="text-2xl font-bold text-gray-900">{stats.trackCount}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Logout button */}
+            <button
+              className="w-full h-12 rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-900 bg-white"
+              onClick={handleLogoutClick}
+            >
+              Log out
+            </button>
+          </div>
+        </section>
+
+        {/* Right panel - Channels list */}
+        <section className="md:overflow-y-auto bg-gray-50">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Channels</h2>
 
             {channelsList.length === 0 ? (
               <div className="text-center py-12">
@@ -114,17 +157,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user, channe
             )}
           </div>
         </section>
-
-        {/* Right panel - Under construction */}
-        <section className="hidden md:flex md:bg-gray-100">
-          <UnderConstruction />
-        </section>
       </div>
-
-      {/* Mobile: Under construction section below channels */}
-      <section className="md:hidden border-t border-gray-200 bg-gray-100" style={{ minHeight: "200px" }}>
-        <UnderConstruction />
-      </section>
     </div>
   );
 };
