@@ -141,7 +141,15 @@ export const Channel: React.FC<ChannelProps> = ({
                       <div className="text-sm text-gray-600 truncate">{track.artist}</div>
                     </div>
                     <div className="text-sm text-gray-500 flex-shrink-0">
-                      {formatDuration(track.duration / 1000)}
+                      {isPlaying && nowPlaying ? (
+                        <NowPlayingPosition
+                          initialPosition={nowPlaying.position}
+                          maxPosition={track.duration}
+                          formatDuration={formatDuration}
+                        />
+                      ) : (
+                        formatDuration(track.duration / 1000)
+                      )}
                     </div>
                   </div>
                 );
