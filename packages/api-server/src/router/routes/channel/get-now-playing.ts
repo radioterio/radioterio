@@ -27,6 +27,7 @@ interface NowPlayingTrack {
   readonly title: string;
   readonly artist: string;
   readonly duration: number;
+  readonly offset: number;
   readonly trackUrl: string;
 }
 
@@ -65,6 +66,7 @@ export class GetNowPlayingController extends AuthRouteHandler<NowPlaying> {
         title: nowPlaying.track.title,
         artist: nowPlaying.track.artist,
         duration: nowPlaying.track.duration,
+        offset: nowPlaying.track.offset,
         trackUrl: await this.s3Client.getObjectUrl(
           config.awsS3Bucket,
           getTrackPath(nowPlaying.track),

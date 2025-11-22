@@ -218,6 +218,7 @@ const NowPlayingSchema = z.object({
     title: z.string(),
     artist: z.string(),
     duration: z.number(),
+    offset: z.number(),
     trackUrl: z.string(),
   }),
   position: z.number(),
