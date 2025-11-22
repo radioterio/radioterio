@@ -257,3 +257,103 @@ export async function getNowPlaying(
 
   return right(result.data);
 }
+
+export async function playChannel(
+  channelId: number,
+  offset?: number,
+): Promise<Either<ServerError | ParseError, void>> {
+  const c = await cookies();
+  const accessTokenCookie = c.get("accessToken");
+
+  const body: { offset?: number } = {};
+  if (offset !== undefined) {
+    body.offset = offset;
+  }
+
+  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/play`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessTokenCookie?.value}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    return left(new ServerError(res.status, await res.text()));
+  }
+
+  return right(undefined);
+}
+
+export async function pauseChannel(
+  channelId: number,
+  offset?: number,
+): Promise<Either<ServerError | ParseError, void>> {
+  const c = await cookies();
+  const accessTokenCookie = c.get("accessToken");
+
+  const body: { offset?: number } = {};
+  if (offset !== undefined) {
+    body.offset = offset;
+  }
+
+  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/pause`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessTokenCookie?.value}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    return left(new ServerError(res.status, await res.text()));
+  }
+
+  return right(undefined);
+}
+
+export async function stopChannel(
+  channelId: number,
+): Promise<Either<ServerError | ParseError, void>> {
+  const c = await cookies();
+  const accessTokenCookie = c.get("accessToken");
+
+  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/stop`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessTokenCookie?.value}`,
+    },
+  });
+
+  if (!res.ok) {
+    return left(new ServerError(res.status, await res.text()));
+  }
+
+  return right(undefined);
+}
+
+export async function seekChannel(
+  channelId: number,
+  offset: number,
+): Promise<Either<ServerError | ParseError, void>> {
+  const c = await cookies();
+  const accessTokenCookie = c.get("accessToken");
+
+  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/seek`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessTokenCookie?.value}`,
+    },
+    body: JSON.stringify({ offset }),
+  });
+
+  if (!res.ok) {
+    return left(new ServerError(res.status, await res.text()));
+  }
+
+  return right(undefined);
+}

@@ -45,41 +45,6 @@ export const Channel: React.FC<ChannelProps> = ({
               <ChannelPreview channelId={channel.id} channelStatus={channel.status} userId={userId} />
             </div>
 
-            {/* Cover */}
-            <div className="flex justify-center">
-              {channel.coverFileUrl ? (
-                <div className="relative w-48 h-48 rounded-lg overflow-hidden">
-                  <Image
-                    src={channel.coverFileUrl}
-                    alt={channel.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div
-                  className="w-48 h-48 rounded-lg flex items-center justify-center text-gray-400"
-                  style={{
-                    backgroundColor: channel.coverBackgroundColor || "#f3f4f6",
-                  }}
-                >
-                  No cover
-                </div>
-              )}
-            </div>
-
-            {/* Title */}
-            <div className="text-center">
-              <h1 className="text-2xl font-semibold text-gray-900 mb-2">{channel.title}</h1>
-              <div className="flex items-center justify-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${getStatusColor(channel.status)}`}
-                  title={channel.status}
-                />
-                <span className="text-sm text-gray-600">{channel.status}</span>
-              </div>
-            </div>
-
             {/* Play controls */}
             <div className="flex justify-center gap-3">
               <button className="px-6 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 font-medium">
@@ -127,6 +92,41 @@ export const Channel: React.FC<ChannelProps> = ({
         {/* Right panel - Tracklist */}
         <section className="md:overflow-y-auto bg-gray-50">
           <div className="p-6 space-y-6">
+            {/* Cover */}
+            <div className="flex justify-center">
+              {channel.coverFileUrl ? (
+                <div className="relative w-48 h-48 rounded-lg overflow-hidden">
+                  <Image
+                    src={channel.coverFileUrl}
+                    alt={channel.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="w-48 h-48 rounded-lg flex items-center justify-center text-gray-400"
+                  style={{
+                    backgroundColor: channel.coverBackgroundColor || "#f3f4f6",
+                  }}
+                >
+                  No cover
+                </div>
+              )}
+            </div>
+
+            {/* Title */}
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">{channel.title}</h1>
+              <div className="flex items-center justify-center gap-2">
+                <div
+                  className={`w-3 h-3 rounded-full ${getStatusColor(channel.status)}`}
+                  title={channel.status}
+                />
+                <span className="text-sm text-gray-600">{channel.status}</span>
+              </div>
+            </div>
+
             <h2 className="text-xl font-semibold text-gray-900">Tracklist</h2>
             <div className="space-y-0">
               {/* Rendered tracks */}
