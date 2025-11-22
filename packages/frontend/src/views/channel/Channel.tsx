@@ -15,6 +15,7 @@ interface ChannelProps {
   readonly nowPlaying: { track: ChannelTrack; position: number } | null;
   readonly observerTarget: RefObject<HTMLDivElement>;
   readonly isLoading: boolean;
+  readonly userId: number;
 }
 
 const formatDuration = (seconds: number): string => {
@@ -31,6 +32,7 @@ export const Channel: React.FC<ChannelProps> = ({
   nowPlaying,
   observerTarget,
   isLoading,
+  userId,
 }) => {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -122,7 +124,7 @@ export const Channel: React.FC<ChannelProps> = ({
           <div className="p-6 space-y-6">
             {/* Channel Preview - Sticky */}
             <div className="sticky top-0 z-10 -mx-6 -mt-6">
-              <ChannelPreview channelId={channel.id} channelStatus={channel.status} />
+              <ChannelPreview channelId={channel.id} channelStatus={channel.status} userId={userId} />
             </div>
 
             <h2 className="text-xl font-semibold text-gray-900">Tracklist</h2>

@@ -8,6 +8,7 @@ import { useNowPlaying } from "@/hooks/useNowPlaying";
 interface ChannelContainerProps {
   readonly channel: ChannelResponse;
   readonly initialTracks: ChannelTrack[];
+  readonly userId: number;
 }
 
 const TRACK_HEIGHT = 64; // Fixed height in pixels
@@ -16,6 +17,7 @@ const BATCH_SIZE = 50;
 export const ChannelContainer: React.FC<ChannelContainerProps> = ({
   channel,
   initialTracks,
+  userId,
 }) => {
   const [tracks, setTracks] = useState<ChannelTrack[]>(initialTracks);
   const [isLoading, setIsLoading] = useState(false);
@@ -106,6 +108,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
       nowPlaying={nowPlaying}
       observerTarget={observerTarget}
       isLoading={isLoading}
+      userId={userId}
     />
   );
 };
