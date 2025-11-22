@@ -38,9 +38,6 @@ export const Channel: React.FC<ChannelProps> = ({
         {/* Left panel - Channel info (top on mobile) */}
         <section className="md:border-r md:border-gray-200 md:overflow-y-auto bg-white border-b md:border-b-0 border-gray-200">
           <div className="p-6 space-y-6">
-            {/* Channel Preview */}
-            <ChannelPreview channelId={channel.id} channelStatus={channel.status} />
-
             {/* Cover */}
             <div className="flex justify-center">
               {channel.coverFileUrl ? (
@@ -122,8 +119,13 @@ export const Channel: React.FC<ChannelProps> = ({
 
         {/* Right panel - Tracklist */}
         <section className="md:overflow-y-auto bg-gray-50">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Tracklist</h2>
+          <div className="p-6 space-y-6">
+            {/* Channel Preview - Sticky */}
+            <div className="sticky top-0 z-10 -mx-6 -mt-6">
+              <ChannelPreview channelId={channel.id} channelStatus={channel.status} />
+            </div>
+
+            <h2 className="text-xl font-semibold text-gray-900">Tracklist</h2>
             <div className="space-y-0">
               {/* Rendered tracks */}
               {tracks.map((track, index) => {
