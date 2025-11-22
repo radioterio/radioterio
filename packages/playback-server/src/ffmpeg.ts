@@ -26,7 +26,6 @@ export interface EncoderParameters {
   channels: number;
   format: string;
   codec: string;
-  realtime?: boolean;
 }
 
 export function encode(
@@ -38,13 +37,8 @@ export function encode(
 
   const output = new PassThrough();
 
-  const inputOptions = [`-ac ${RAW_AUDIO_FORMAT.channels}`, `-ar ${RAW_AUDIO_FORMAT.sampleRate}`];
-  if (params.realtime) {
-    inputOptions.push("-re");
-  }
-
   const encoder = ffmpeg(src)
-    .inputOptions(inputOptions)
+    .inputOptions([`-ac ${RAW_AUDIO_FORMAT.channels}`, `-ar ${RAW_AUDIO_FORMAT.sampleRate}`])
     .inputFormat(RAW_AUDIO_FORMAT.format)
     .audioBitrate(params.bitrate)
     .audioChannels(params.channels)

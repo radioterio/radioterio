@@ -42,7 +42,6 @@ export function setupRoutes(app: express.Application, config: Config) {
         channels: 2,
         format: "mp3",
         codec: "libmp3lame",
-        realtime: true,
       },
       true,
     );
