@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Channel } from "./Channel";
-import { ChannelResponse, ChannelTrack, getChannelTracks, getNowPlaying } from "@/app/actions";
+import { ChannelResponse, ChannelTrack, getChannelTracks } from "@/app/actions";
+import { useNowPlaying } from "@/hooks/useNowPlaying";
 
 interface ChannelContainerProps {
   readonly channel: ChannelResponse;
@@ -19,10 +20,10 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
   const [tracks, setTracks] = useState<ChannelTrack[]>(initialTracks);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialTracks.length < channel.totalTrackCount);
-  const [nowPlaying, setNowPlaying] = useState<{ track: ChannelTrack; position: number } | null>(
-    null,
-  );
   const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Use the shared hook for now playing data
+  const nowPlayingData = useNowPlaying(channel.id);
 
   // Load more tracks
   const loadMoreTracks = useCallback(async () => {
@@ -69,45 +70,30 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
     };
   }, [hasMore, isLoading, loadMoreTracks]);
 
-  // Poll for now playing (every 5 seconds)
-  useEffect(() => {
-    const updateNowPlaying = async () => {
-      try {
-        const timestamp = Date.now();
-        const result = await getNowPlaying(channel.id, timestamp);
-        if (result.type === "right") {
-          const np = result.right;
-          // Find the track in our tracks list by matching title and artist
-          const track = tracks.find(
-            (t) => t.title === np.track.title && t.artist === np.track.artist,
-          );
-          if (track) {
-            setNowPlaying({ track, position: np.position });
-          } else {
-            // If track not found in loaded tracks, create a temporary track object
-            const tempTrack: ChannelTrack = {
-              id: 0,
-              filename: np.track.filename,
-              extension: "",
-              title: np.track.title,
-              artist: np.track.artist,
-              duration: np.track.duration,
-              trackUrl: np.track.trackUrl,
-            };
-            setNowPlaying({ track: tempTrack, position: np.position });
-          }
-        }
-      } catch (error) {
-        // Channel might not be playing, ignore errors
-        setNowPlaying(null);
-      }
-    };
+  // Map now playing data to match tracks from our list
+  const nowPlaying = (() => {
+    if (!nowPlayingData) return null;
 
-    updateNowPlaying();
-    const interval = setInterval(updateNowPlaying, 5000);
-
-    return () => clearInterval(interval);
-  }, [channel.id, tracks]);
+    // Find the track in our tracks list by matching title and artist
+    const track = tracks.find(
+      (t) => t.title === nowPlayingData.track.title && t.artist === nowPlayingData.track.artist,
+    );
+    if (track) {
+      return { track, position: nowPlayingData.position };
+    } else {
+      // If track not found in loaded tracks, create a temporary track object
+      const tempTrack: ChannelTrack = {
+        id: 0,
+        filename: nowPlayingData.track.filename,
+        extension: "",
+        title: nowPlayingData.track.title,
+        artist: nowPlayingData.track.artist,
+        duration: nowPlayingData.track.duration,
+        trackUrl: nowPlayingData.track.trackUrl,
+      };
+      return { track: tempTrack, position: nowPlayingData.position };
+    }
+  })();
 
   const placeholderCount = channel.totalTrackCount - tracks.length;
 

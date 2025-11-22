@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getNowPlaying } from "@/app/actions";
 import { useColorsAnimation } from "./useColorsAnimation";
+import { useNowPlaying } from "@/hooks/useNowPlaying";
 
 interface ChannelPreviewProps {
   readonly channelId: number;
@@ -13,12 +13,11 @@ export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
   channelId,
   channelStatus,
 }) => {
-  const [nowPlaying, setNowPlaying] = useState<{
-    title: string;
-    artist: string;
-  } | null>(null);
   const [initialTime, setInitialTime] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Use the shared hook for now playing data
+  const nowPlaying = useNowPlaying(channelId);
 
   // Initialize time only on client to avoid hydration mismatch
   useEffect(() => {
@@ -39,31 +38,6 @@ export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
 
     return () => clearInterval(interval);
   }, [isMounted]);
-
-  // Fetch now playing track
-  useEffect(() => {
-    const updateNowPlaying = async () => {
-      try {
-        const timestamp = Date.now();
-        const result = await getNowPlaying(channelId, timestamp);
-        if (result.type === "right") {
-          setNowPlaying({
-            title: result.right.track.title,
-            artist: result.right.track.artist,
-          });
-        } else {
-          setNowPlaying(null);
-        }
-      } catch (error) {
-        setNowPlaying(null);
-      }
-    };
-
-    updateNowPlaying();
-    const interval = setInterval(updateNowPlaying, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [channelId]);
 
   return (
     <div className="relative w-full rounded-lg overflow-hidden bg-black" style={{ aspectRatio: "16/9" }}>
@@ -114,8 +88,8 @@ export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
       {nowPlaying && (
         <div className="absolute bottom-4 left-4 z-10">
           <div className="px-4 py-2 rounded bg-black/50 text-white">
-            <div className="font-medium text-sm">{nowPlaying.title}</div>
-            <div className="text-xs text-gray-300">{nowPlaying.artist}</div>
+            <div className="font-medium text-sm">{nowPlaying.track.title}</div>
+            <div className="text-xs text-gray-300">{nowPlaying.track.artist}</div>
           </div>
         </div>
       )}
