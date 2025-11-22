@@ -140,4 +140,41 @@ export class ChannelRepository {
         started_from: offset,
       });
   }
+
+  async seekChannel(channelId: number, userId: number, offset: number): Promise<void> {
+    const channel = await this.getChannel(channelId, userId);
+    if (!channel) {
+      return;
+    }
+
+    if (channel.status === ChannelStatus.Stopped) {
+      // Do nothing if stopped
+      return;
+    }
+
+    if (channel.status === ChannelStatus.Paused) {
+      // If paused, only update started_from
+      await this.knex
+        .client<StreamRow>(TABLE_NAME)
+        .where("sid", channelId)
+        .where("uid", userId)
+        .update({
+          started_from: offset,
+        });
+      return;
+    }
+
+    if (channel.status === ChannelStatus.Started) {
+      // If playing, update both started_from and started to now
+      await this.knex
+        .client<StreamRow>(TABLE_NAME)
+        .where("sid", channelId)
+        .where("uid", userId)
+        .update({
+          started: Date.now(),
+          started_from: offset,
+        });
+      return;
+    }
+  }
 }
