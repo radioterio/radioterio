@@ -104,4 +104,16 @@ export class ChannelRepository {
 
     return Number(result?.count ?? 0);
   }
+
+  async stopChannel(channelId: number, userId: number): Promise<void> {
+    await this.knex
+      .client<StreamRow>(TABLE_NAME)
+      .where("sid", channelId)
+      .where("uid", userId)
+      .update({
+        status: 0, // Stopped
+        started: null,
+        started_from: null,
+      });
+  }
 }
