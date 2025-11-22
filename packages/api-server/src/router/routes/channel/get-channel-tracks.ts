@@ -33,6 +33,7 @@ interface ChannelTrackOutput {
   readonly title: string;
   readonly artist: string;
   readonly duration: number;
+  readonly offset: number;
   readonly trackUrl: string;
 }
 
@@ -70,6 +71,7 @@ export class GetChannelsTracksController extends AuthRouteHandler<readonly Chann
           title: track.title,
           artist: track.artist,
           duration: track.duration,
+          offset: track.offset,
           trackUrl: await this.s3Client.getObjectUrl(config.awsS3Bucket, getTrackPath(track)),
         })),
       ),
