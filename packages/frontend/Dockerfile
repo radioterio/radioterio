@@ -3,7 +3,7 @@ FROM node:22 AS build
 WORKDIR /code
 
 # Install dependencies before compiling the code.
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json tsconfig.json ./
 COPY packages/common/package.json ./packages/common/
 COPY packages/common/tsconfig.json ./packages/common/
 COPY packages/frontend/package.json ./packages/frontend/
