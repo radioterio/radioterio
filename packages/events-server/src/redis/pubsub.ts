@@ -107,6 +107,26 @@ export class RedisPubSubService {
   }
 
   /**
+   * Send 'end' message to all subscribers to notify them of shutdown.
+   */
+  async sendEndToAllSubscribers(): Promise<void> {
+    // Wait for all pending operations to complete
+    await this.queue.waitForAll();
+
+    // Send 'end' message to all callbacks
+    const endMessage = JSON.stringify({ event: "end", data: null });
+    for (const [channel, callbacks] of this.channelSubscriptions.entries()) {
+      callbacks.forEach((callback) => {
+        try {
+          callback(endMessage);
+        } catch (error) {
+          console.error(`Error sending end message to callback for channel ${channel}:`, error);
+        }
+      });
+    }
+  }
+
+  /**
    * Clean up all subscriptions (does not disconnect Redis connections).
    * The Redis connections are managed by RedisService.
    * This method waits for all pending operations to complete before cleaning up.

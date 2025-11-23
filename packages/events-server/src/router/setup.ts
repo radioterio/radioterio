@@ -11,8 +11,8 @@ export function setupRouter(app: Application) {
   const router = Router();
   const bind = makeBind(getContainer(app));
 
-  router.post("/events/:userId/publish", bodyParser.json(), bind(PublishEventRouteHandler));
-  router.get("/events/:userId/subscribe", bind(SubscribeEventRouteHandler));
+  router.post("/users/:userId/events/publish", bodyParser.json(), bind(PublishEventRouteHandler));
+  router.get("/users/:userId/events/subscribe", bind(SubscribeEventRouteHandler));
 
   router.use(errorMiddleware);
 
