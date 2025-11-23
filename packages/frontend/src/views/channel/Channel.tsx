@@ -60,13 +60,6 @@ export const Channel: React.FC<ChannelProps> = ({
             <div className="-mx-6 -mt-6 bg-white px-6 py-3 border-t border-gray-200">
               {nowPlaying ? (
                 <>
-                  {/* Track info */}
-                  <div className="mb-3">
-                    <div className="text-base text-gray-600 text-center truncate">
-                      {nowPlaying.track.artist} - <span className="font-medium text-gray-900">{nowPlaying.track.title}</span>
-                    </div>
-                  </div>
-
                   {/* Controls */}
                   <div className="flex items-center justify-center gap-4 mb-3">
                     {/* Previous track */}
