@@ -4,7 +4,7 @@ import express from "express";
 import z from "zod";
 
 import { AppRequest, RouteHandler } from "../route-handler.js";
-import { RedisService } from "../../redis/client.js";
+import { RedisPubSubService } from "../../redis/pubsub.js";
 import { getConfig } from "../../app.js";
 
 interface RequestBody {
@@ -23,7 +23,7 @@ const RequestBodySchema = z.object({
 
 @injectable()
 export class PublishEventRouteHandler extends RouteHandler<ResponseBody> {
-  constructor(@inject(RedisService) private readonly redisService: RedisService) {
+  constructor(@inject(RedisPubSubService) private readonly pubSubService: RedisPubSubService) {
     super();
   }
 
@@ -46,7 +46,7 @@ export class PublishEventRouteHandler extends RouteHandler<ResponseBody> {
     const channel = `${config.redisPrefix}:events:user:${userId}`;
     const message = JSON.stringify({ event, data, userId, timestamp: Date.now() });
 
-    await this.redisService.getPublisher().publish(channel, message);
+    await this.pubSubService.publish(channel, message);
 
     res.status(StatusCodes.OK).json({ success: true });
   }
