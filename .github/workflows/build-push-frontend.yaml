@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+env:
+  NEXT_PUBLIC_API_SERVER_URL: https://radioter.io/api-v2
+  NEXT_PUBLIC_PLAYBACK_SERVER_URL: https://radioter.io/pb
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,4 +43,3 @@ jobs:
           tags: |
             pldin601/radioterio-frontend:latest,
             pldin601/radioterio-frontend:${{ github.sha }}
-
