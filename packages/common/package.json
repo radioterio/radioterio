@@ -12,8 +12,11 @@
     "build": "tsc --project tsconfig.json"
   },
   "peerDependencies": {
-    "zod": "^4.1.11",
     "bcrypt": "^6.0.0",
-    "jose": "^6.1.0"
+    "jose": "^6.1.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0"
   }
 }
