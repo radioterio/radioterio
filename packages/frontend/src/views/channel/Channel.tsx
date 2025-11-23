@@ -62,7 +62,7 @@ export const Channel: React.FC<ChannelProps> = ({
                 <>
                   {/* Track info */}
                   <div className="mb-3">
-                    <div className="text-sm text-gray-600 text-center truncate">
+                    <div className="text-base text-gray-600 text-center truncate">
                       {nowPlaying.track.artist} - <span className="font-medium text-gray-900">{nowPlaying.track.title}</span>
                     </div>
                   </div>
@@ -140,7 +140,7 @@ export const Channel: React.FC<ChannelProps> = ({
                   {/* Progress bar and time */}
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-1.5">
-                      <span className="text-xs text-gray-600">
+                      <span className="text-sm text-gray-600">
                         <NowPlayingPosition
                           initialPosition={nowPlaying.position}
                           maxPosition={nowPlaying.track.duration}
@@ -149,7 +149,7 @@ export const Channel: React.FC<ChannelProps> = ({
                           showDuration={false}
                         />
                       </span>
-                      <span className="text-xs text-gray-600">
+                      <span className="text-sm text-gray-600">
                         {formatDuration(nowPlaying.track.duration / 1000)}
                       </span>
                     </div>
