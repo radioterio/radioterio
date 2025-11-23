@@ -1,0 +1,18 @@
+{
+  "exclude": [
+    "dist"
+  ],
+  "include": [
+    "src/**/*.ts",
+  ],
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "./src/",
+    "outDir": "./dist",
+    "types": ["reflect-metadata", "node"],
+
+    "experimentalDecorators": true
+  }
+}
+
