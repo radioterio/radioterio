@@ -17,6 +17,7 @@ interface ChannelProps {
   readonly hasMore: boolean;
   readonly isLoading: boolean;
   readonly userId: number;
+  readonly playbackServerUrl: string | null;
   readonly onSeek: (offset: number) => void;
   readonly onPlay: () => void;
   readonly onPause: () => void;
@@ -40,6 +41,7 @@ export const Channel: React.FC<ChannelProps> = ({
   hasMore,
   isLoading,
   userId,
+  playbackServerUrl,
   onSeek,
   onPlay,
   onPause,
@@ -88,6 +90,7 @@ export const Channel: React.FC<ChannelProps> = ({
                 channelId={channel.id}
                 channelStatus={channel.status}
                 userId={userId}
+                playbackServerUrl={playbackServerUrl}
               />
             </div>
 

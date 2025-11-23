@@ -16,6 +16,7 @@ interface ChannelContainerProps {
   readonly channel: ChannelResponse;
   readonly initialTracks: ChannelTrack[];
   readonly userId: number;
+  readonly playbackServerUrl: string | null;
 }
 
 const TRACK_HEIGHT = 64; // Fixed height in pixels
@@ -25,6 +26,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
   channel,
   initialTracks,
   userId,
+  playbackServerUrl,
 }) => {
   const [tracks, setTracks] = useState<ChannelTrack[]>(initialTracks);
   const [isLoading, setIsLoading] = useState(false);
@@ -190,6 +192,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
       hasMore={hasMore}
       isLoading={isLoading}
       userId={userId}
+      playbackServerUrl={playbackServerUrl}
       onSeek={handleSeek}
       onPlay={handlePlay}
       onPause={handlePause}

@@ -1,5 +1,5 @@
 import { ChannelContainer } from "@/views/channel/ChannelContainer";
-import { getChannel, getChannelTracks, getUser } from "@/app/actions";
+import { getChannel, getChannelTracks, getUser, getConfig } from "@/app/actions";
 import { notFound } from "next/navigation";
 
 export default async function ChannelPage({ params }: { params: Promise<{ channelId: string }> }) {
@@ -10,21 +10,26 @@ export default async function ChannelPage({ params }: { params: Promise<{ channe
     notFound();
   }
 
-  const [channel, initialTracks, user] = await Promise.all([
+  const [channel, initialTracks, user, configResult] = await Promise.all([
     getChannel(channelIdNum),
     getChannelTracks(channelIdNum, 0, 50),
     getUser(),
+    getConfig(),
   ]);
 
   if (channel.type === "left" || initialTracks.type === "left" || user.type === "left") {
     notFound();
   }
 
+  const playbackServerUrl =
+    configResult.type === "right" ? configResult.right.playbackServerUrl : null;
+
   return (
     <ChannelContainer
       channel={channel.right}
       initialTracks={initialTracks.right}
       userId={user.right.id}
+      playbackServerUrl={playbackServerUrl}
     />
   );
 }

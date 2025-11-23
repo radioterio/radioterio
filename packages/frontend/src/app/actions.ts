@@ -6,8 +6,12 @@ import { cookies } from "next/headers";
 import { Either, left, right } from "@/common/either-lite";
 import { ServerError } from "@/errors/server-error";
 import { ParseError } from "@/errors/parse-error";
+import { Config, ConfigData } from "@/config";
 
-const API_SERVER_URL = process.env.NEXT_PUBLIC_API_SERVER_URL;
+// Initialize config at module level (available in server actions)
+const config = Config.fromEnv();
+
+// Config type is exported from @/config
 
 const LoginResponseSchema = z.object({
   accessToken: z.string(),
@@ -18,7 +22,7 @@ export async function loginAction(
   password: string,
 ): Promise<Either<ServerError | ParseError, void>> {
   const c = await cookies();
-  const res = await fetch(`${API_SERVER_URL}/auth/login`, {
+  const res = await fetch(`${config.apiServerUrl}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -68,7 +72,7 @@ export async function getUser(): Promise<Either<ServerError | ParseError, UserRe
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
 
-  const res = await fetch(`${API_SERVER_URL}/user`, {
+  const res = await fetch(`${config.apiServerUrl}/user`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -106,7 +110,7 @@ export async function getChannels(): Promise<Either<ServerError | ParseError, Ch
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
 
-  const res = await fetch(`${API_SERVER_URL}/channels`, {
+  const res = await fetch(`${config.apiServerUrl}/channels`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -140,7 +144,7 @@ export async function getChannel(
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
 
-  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}`, {
+  const res = await fetch(`${config.apiServerUrl}/channels/${channelId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -184,7 +188,7 @@ export async function getChannelTracks(
   const accessTokenCookie = c.get("accessToken");
 
   const res = await fetch(
-    `${API_SERVER_URL}/channels/${channelId}/tracks?offset=${offset}&limit=${limit}`,
+    `${config.apiServerUrl}/channels/${channelId}/tracks?offset=${offset}&limit=${limit}`,
     {
       method: "GET",
       headers: {
@@ -233,7 +237,7 @@ export async function getNowPlaying(
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
 
-  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/now-playing-at/${timestamp}`, {
+  const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/now-playing-at/${timestamp}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -267,7 +271,7 @@ export async function playChannel(
     body.offset = offset;
   }
 
-  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/play`, {
+  const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/play`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -295,7 +299,7 @@ export async function pauseChannel(
     body.offset = offset;
   }
 
-  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/pause`, {
+  const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/pause`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -317,7 +321,7 @@ export async function stopChannel(
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
 
-  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/stop`, {
+  const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/stop`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -339,7 +343,7 @@ export async function seekChannel(
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
 
-  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/seek`, {
+  const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/seek`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -353,4 +357,11 @@ export async function seekChannel(
   }
 
   return right(undefined);
+}
+
+export async function getConfig(): Promise<Either<ServerError | ParseError, ConfigData>> {
+  return right({
+    apiServerUrl: config.apiServerUrl,
+    playbackServerUrl: config.playbackServerUrl,
+  });
 }

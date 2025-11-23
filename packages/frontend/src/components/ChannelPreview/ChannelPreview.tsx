@@ -8,14 +8,14 @@ interface ChannelPreviewProps {
   readonly channelId: number;
   readonly channelStatus?: string;
   readonly userId: number;
+  readonly playbackServerUrl: string | null;
 }
-
-const PLAYBACK_SERVER_URL = process.env.NEXT_PUBLIC_PLAYBACK_SERVER_URL || "";
 
 export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
   channelId,
   channelStatus,
   userId,
+  playbackServerUrl,
 }) => {
   const [initialTime, setInitialTime] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -47,11 +47,11 @@ export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
 
   // Handle mute/unmute toggle
   const handleToggleMute = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !playbackServerUrl) return;
 
     if (isMuted) {
       // Unmute: load and play audio stream
-      const streamUrl = `${PLAYBACK_SERVER_URL}/user/${userId}/channel/${channelId}/stream`;
+      const streamUrl = `${playbackServerUrl}/user/${userId}/channel/${channelId}/stream`;
       audioRef.current.src = streamUrl;
       audioRef.current.play().catch((error) => {
         console.error("Failed to play audio:", error);
@@ -142,7 +142,7 @@ export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
       )}
 
       {/* Mute/Unmute button - bottom right */}
-      {channelStatus !== "Stopped" && (
+      {channelStatus !== "Stopped" && playbackServerUrl && (
         <button
           className="absolute bottom-4 right-4 z-30 w-10 h-10 rounded-full bg-black/70 flex items-center justify-center cursor-default"
           onClick={handleToggleMute}
