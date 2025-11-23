@@ -13,10 +13,6 @@ export class SubscribeEventRouteHandler extends RouteHandler<void> {
 
   async handle(req: AppRequest, res: express.Response<void>): Promise<void> {
     const userId = req.params.userId;
-    if (!userId || typeof userId !== "string") {
-      res.status(400).end();
-      return;
-    }
 
     // Set up SSE headers
     res.setHeader("Content-Type", "text/event-stream");

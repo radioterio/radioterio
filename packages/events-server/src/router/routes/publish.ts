@@ -29,10 +29,6 @@ export class PublishEventRouteHandler extends RouteHandler<ResponseBody> {
 
   async handle(req: AppRequest, res: express.Response<ResponseBody>): Promise<void> {
     const userId = req.params.userId;
-    if (!userId || typeof userId !== "string") {
-      res.status(StatusCodes.BAD_REQUEST).json({ success: false });
-      return;
-    }
 
     const bodyResult = RequestBodySchema.safeParse(req.body);
     if (!bodyResult.success) {
