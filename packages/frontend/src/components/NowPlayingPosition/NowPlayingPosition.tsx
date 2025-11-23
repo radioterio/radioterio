@@ -7,6 +7,7 @@ interface NowPlayingPositionProps {
   readonly maxPosition: number; // in milliseconds
   readonly formatDuration: (seconds: number) => string;
   readonly isPaused?: boolean;
+  readonly showDuration?: boolean;
 }
 
 export const NowPlayingPosition: React.FC<NowPlayingPositionProps> = ({
@@ -14,6 +15,7 @@ export const NowPlayingPosition: React.FC<NowPlayingPositionProps> = ({
   maxPosition,
   formatDuration,
   isPaused = false,
+  showDuration = true,
 }) => {
   const [currentPosition, setCurrentPosition] = useState(initialPosition);
 
@@ -40,7 +42,8 @@ export const NowPlayingPosition: React.FC<NowPlayingPositionProps> = ({
 
   return (
     <span>
-      {formatDuration(currentPosition / 1000)} / {formatDuration(maxPosition / 1000)}
+      {formatDuration(currentPosition / 1000)}
+      {showDuration && ` / ${formatDuration(maxPosition / 1000)}`}
     </span>
   );
 };

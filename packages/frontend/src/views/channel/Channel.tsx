@@ -146,6 +146,7 @@ export const Channel: React.FC<ChannelProps> = ({
                           maxPosition={nowPlaying.track.duration}
                           formatDuration={formatDuration}
                           isPaused={channel.status !== "Started"}
+                          showDuration={false}
                         />
                       </span>
                       <span className="text-xs text-gray-600">
