@@ -14,9 +14,7 @@ const RouteParamsSchema = z.object({
 
 @injectable()
 export class StopChannelController extends AuthRouteHandler<void> {
-  constructor(
-    @inject(ChannelRepository) private readonly channelRepository: ChannelRepository,
-  ) {
+  constructor(@inject(ChannelRepository) private readonly channelRepository: ChannelRepository) {
     super();
   }
 
@@ -32,4 +30,3 @@ export class StopChannelController extends AuthRouteHandler<void> {
     res.status(StatusCodes.NO_CONTENT).send();
   }
 }
-

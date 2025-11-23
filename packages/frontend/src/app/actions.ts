@@ -233,16 +233,13 @@ export async function getNowPlaying(
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
 
-  const res = await fetch(
-    `${API_SERVER_URL}/channels/${channelId}/now-playing-at/${timestamp}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessTokenCookie?.value}`,
-      },
+  const res = await fetch(`${API_SERVER_URL}/channels/${channelId}/now-playing-at/${timestamp}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessTokenCookie?.value}`,
     },
-  );
+  });
 
   if (!res.ok) {
     return left(new ServerError(res.status, await res.text()));

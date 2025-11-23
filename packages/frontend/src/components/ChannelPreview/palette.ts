@@ -18,4 +18,3 @@ export const colors = [
   "#228B22", // Forest Green
   "#40E0D0", // Turquoise
 ];
-

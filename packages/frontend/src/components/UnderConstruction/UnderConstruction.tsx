@@ -16,7 +16,7 @@ export const UnderConstruction: React.FC = () => {
           )`,
         }}
       />
-      
+
       {/* Content */}
       <div className="relative z-10 text-center p-8">
         <p className="text-gray-500 text-sm font-medium">Under Construction</p>
@@ -24,4 +24,3 @@ export const UnderConstruction: React.FC = () => {
     </div>
   );
 };
-

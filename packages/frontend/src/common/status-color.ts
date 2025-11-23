@@ -10,4 +10,3 @@ export const getStatusColor = (status: string): string => {
       return "bg-gray-400";
   }
 };
-

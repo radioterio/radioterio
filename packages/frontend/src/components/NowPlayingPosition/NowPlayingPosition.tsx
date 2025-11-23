@@ -47,4 +47,3 @@ export const NowPlayingPosition: React.FC<NowPlayingPositionProps> = ({
     </span>
   );
 };
-

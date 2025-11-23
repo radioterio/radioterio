@@ -27,10 +27,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   };
 
   return (
-    <div
-      className="h-1 bg-gray-200 relative overflow-hidden cursor-default"
-      onClick={handleClick}
-    >
+    <div className="h-1 bg-gray-200 relative overflow-hidden cursor-default" onClick={handleClick}>
       <style jsx>{`
         @keyframes scale {
           0% {
@@ -55,4 +52,3 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     </div>
   );
 };
-

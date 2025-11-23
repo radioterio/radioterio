@@ -2,11 +2,7 @@ import { ChannelContainer } from "@/views/channel/ChannelContainer";
 import { getChannel, getChannelTracks, getUser } from "@/app/actions";
 import { notFound } from "next/navigation";
 
-export default async function ChannelPage({
-  params,
-}: {
-  params: Promise<{ channelId: string }>;
-}) {
+export default async function ChannelPage({ params }: { params: Promise<{ channelId: string }> }) {
   const { channelId } = await params;
   const channelIdNum = parseInt(channelId, 10);
 
@@ -32,4 +28,3 @@ export default async function ChannelPage({
     />
   );
 }
-

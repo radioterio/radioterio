@@ -39,4 +39,3 @@ export const useNowPlaying = (channelId: number, pollInterval: number = 5000) =>
 
   return nowPlaying;
 };
-

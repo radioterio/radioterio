@@ -51,4 +51,3 @@ export const useColorsAnimation = (initialTimeMillis: number): ColorsAnimationSt
 
   return { frameAOpacity, frameBOpacity, frameAColors, frameBColors };
 };
-

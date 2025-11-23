@@ -13,6 +13,7 @@ export default defineConfig([
       "**/.next/**",
       "**/build/**",
       "**/next-env.d.ts",
+      "**/.cargo-cache/**",
     ],
   },
   {

@@ -48,10 +48,7 @@ export const LoginContainer: React.FC = () => {
   };
 
   const canSubmit =
-    email.length > 0 &&
-    password.length > 0 &&
-    emailError === null &&
-    passwordError === null;
+    email.length > 0 && password.length > 0 && emailError === null && passwordError === null;
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,7 +83,7 @@ export const LoginContainer: React.FC = () => {
           }
         }
       }
-    } catch (err) {
+    } catch {
       setIsSubmitting(false);
       setServerError("An unexpected error occurred. Please try again.");
     }

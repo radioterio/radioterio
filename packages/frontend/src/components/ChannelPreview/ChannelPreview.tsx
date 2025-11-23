@@ -124,8 +124,12 @@ export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
       {nowPlaying && (
         <div className="absolute bottom-4 left-4 z-10">
           <div className="px-4 py-2 rounded bg-black/50 text-white">
-            <div className="font-medium" style={{ fontSize: "clamp(0.875rem, 2vw, 1.25rem)" }}>{nowPlaying.track.title}</div>
-            <div className="text-gray-300" style={{ fontSize: "clamp(0.75rem, 1.5vw, 1rem)" }}>{nowPlaying.track.artist}</div>
+            <div className="font-medium" style={{ fontSize: "clamp(0.875rem, 2vw, 1.25rem)" }}>
+              {nowPlaying.track.title}
+            </div>
+            <div className="text-gray-300" style={{ fontSize: "clamp(0.75rem, 1.5vw, 1rem)" }}>
+              {nowPlaying.track.artist}
+            </div>
           </div>
         </div>
       )}
@@ -184,4 +188,3 @@ export const ChannelPreview: React.FC<ChannelPreviewProps> = ({
     </div>
   );
 };
-

@@ -17,4 +17,3 @@ export const rand = (time: number): number => {
   const x = Math.sin(time) * 70000;
   return x - Math.floor(x);
 };
-
