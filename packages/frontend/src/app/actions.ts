@@ -8,8 +8,15 @@ import { ServerError } from "@/errors/server-error";
 import { ParseError } from "@/errors/parse-error";
 import { Config, ConfigData } from "@/config";
 
-// Initialize config at module level (available in server actions)
-const config = Config.fromEnv();
+// Lazy config initialization (only when needed, not at module load time)
+let configInstance: Config | null = null;
+
+const getConfigInstance = (): Config => {
+  if (!configInstance) {
+    configInstance = Config.fromEnv();
+  }
+  return configInstance;
+};
 
 // Config type is exported from @/config
 
@@ -22,6 +29,7 @@ export async function loginAction(
   password: string,
 ): Promise<Either<ServerError | ParseError, void>> {
   const c = await cookies();
+  const config = getConfigInstance();
   const res = await fetch(`${config.apiServerUrl}/auth/login`, {
     method: "POST",
     headers: {
@@ -71,6 +79,7 @@ export type UserResponse = z.TypeOf<typeof UserResponseSchema>;
 export async function getUser(): Promise<Either<ServerError | ParseError, UserResponse>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const res = await fetch(`${config.apiServerUrl}/user`, {
     method: "GET",
@@ -109,6 +118,7 @@ export type Channel = z.TypeOf<typeof ChannelSchema>;
 export async function getChannels(): Promise<Either<ServerError | ParseError, Channel[]>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const res = await fetch(`${config.apiServerUrl}/channels`, {
     method: "GET",
@@ -143,6 +153,7 @@ export async function getChannel(
 ): Promise<Either<ServerError | ParseError, ChannelResponse>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const res = await fetch(`${config.apiServerUrl}/channels/${channelId}`, {
     method: "GET",
@@ -186,6 +197,7 @@ export async function getChannelTracks(
 ): Promise<Either<ServerError | ParseError, ChannelTrack[]>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const res = await fetch(
     `${config.apiServerUrl}/channels/${channelId}/tracks?offset=${offset}&limit=${limit}`,
@@ -236,6 +248,7 @@ export async function getNowPlaying(
 ): Promise<Either<ServerError | ParseError, NowPlaying>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/now-playing-at/${timestamp}`, {
     method: "GET",
@@ -265,6 +278,7 @@ export async function playChannel(
 ): Promise<Either<ServerError | ParseError, void>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const body: { offset?: number } = {};
   if (offset !== undefined) {
@@ -293,6 +307,7 @@ export async function pauseChannel(
 ): Promise<Either<ServerError | ParseError, void>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const body: { offset?: number } = {};
   if (offset !== undefined) {
@@ -320,6 +335,7 @@ export async function stopChannel(
 ): Promise<Either<ServerError | ParseError, void>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/stop`, {
     method: "POST",
@@ -342,6 +358,7 @@ export async function seekChannel(
 ): Promise<Either<ServerError | ParseError, void>> {
   const c = await cookies();
   const accessTokenCookie = c.get("accessToken");
+  const config = getConfigInstance();
 
   const res = await fetch(`${config.apiServerUrl}/channels/${channelId}/seek`, {
     method: "POST",
@@ -360,6 +377,7 @@ export async function seekChannel(
 }
 
 export async function getConfig(): Promise<Either<ServerError | ParseError, ConfigData>> {
+  const config = getConfigInstance();
   return right({
     apiServerUrl: config.apiServerUrl,
     playbackServerUrl: config.playbackServerUrl,
