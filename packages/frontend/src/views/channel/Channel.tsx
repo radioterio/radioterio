@@ -18,6 +18,10 @@ interface ChannelProps {
   readonly isLoading: boolean;
   readonly userId: number;
   readonly onSeek: (offset: number) => void;
+  readonly onPlay: () => void;
+  readonly onPause: () => void;
+  readonly onNext: () => void;
+  readonly onPrev: () => void;
 }
 
 const formatDuration = (seconds: number): string => {
@@ -36,6 +40,10 @@ export const Channel: React.FC<ChannelProps> = ({
   isLoading,
   userId,
   onSeek,
+  onPlay,
+  onPause,
+  onNext,
+  onPrev,
 }) => {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,7 +70,10 @@ export const Channel: React.FC<ChannelProps> = ({
                   {/* Controls */}
                   <div className="flex items-center justify-center gap-4 mb-3">
                     {/* Previous track */}
-                    <button className="w-10 h-10 flex items-center justify-center cursor-default">
+                    <button
+                      className="w-10 h-10 flex items-center justify-center cursor-default"
+                      onClick={onPrev}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -79,7 +90,10 @@ export const Channel: React.FC<ChannelProps> = ({
                     </button>
 
                     {/* Play/Pause */}
-                    <button className="w-12 h-12 flex items-center justify-center cursor-default">
+                    <button
+                      className="w-12 h-12 flex items-center justify-center cursor-default"
+                      onClick={channel.status === "Started" ? onPause : onPlay}
+                    >
                       {channel.status === "Started" ? (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -103,7 +117,10 @@ export const Channel: React.FC<ChannelProps> = ({
                     </button>
 
                     {/* Next track */}
-                    <button className="w-10 h-10 flex items-center justify-center cursor-default">
+                    <button
+                      className="w-10 h-10 flex items-center justify-center cursor-default"
+                      onClick={onNext}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -128,6 +145,7 @@ export const Channel: React.FC<ChannelProps> = ({
                           initialPosition={nowPlaying.position}
                           maxPosition={nowPlaying.track.duration}
                           formatDuration={formatDuration}
+                          isPaused={channel.status !== "Started"}
                         />
                       </span>
                       <span className="text-xs text-gray-600">
@@ -224,6 +242,7 @@ export const Channel: React.FC<ChannelProps> = ({
                           initialPosition={nowPlaying.position}
                           maxPosition={track.duration}
                           formatDuration={formatDuration}
+                          isPaused={channel.status !== "Started"}
                         />
                       ) : (
                         formatDuration(track.duration / 1000)

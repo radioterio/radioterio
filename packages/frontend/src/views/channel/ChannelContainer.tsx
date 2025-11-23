@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Channel } from "./Channel";
-import { ChannelResponse, ChannelTrack, getChannelTracks, seekChannel } from "@/app/actions";
+import {
+  ChannelResponse,
+  ChannelTrack,
+  getChannelTracks,
+  seekChannel,
+  playChannel,
+  pauseChannel,
+} from "@/app/actions";
 import { useNowPlaying } from "@/hooks/useNowPlaying";
 
 interface ChannelContainerProps {
@@ -110,6 +117,98 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
     [channel.id],
   );
 
+  const handlePlay = useCallback(async () => {
+    if (!nowPlaying) return;
+
+    // Calculate current offset: track offset + current position
+    const trackOffset = "offset" in nowPlaying.track ? nowPlaying.track.offset : 0;
+    const currentOffset = trackOffset + nowPlaying.position;
+
+    const result = await playChannel(channel.id, currentOffset);
+    if (result.type === "left") {
+      console.error("Failed to play:", result.left);
+    }
+  }, [channel.id, nowPlaying]);
+
+  const handlePause = useCallback(async () => {
+    if (!nowPlaying) return;
+
+    // Calculate current offset: track offset + current position
+    const trackOffset = "offset" in nowPlaying.track ? nowPlaying.track.offset : 0;
+    const currentOffset = trackOffset + nowPlaying.position;
+
+    const result = await pauseChannel(channel.id, currentOffset);
+    if (result.type === "left") {
+      console.error("Failed to pause:", result.left);
+    }
+  }, [channel.id, nowPlaying]);
+
+  const handleNext = useCallback(async () => {
+    if (!nowPlaying) return;
+
+    // Find current track in the tracks list
+    const currentTrackIndex = tracks.findIndex(
+      (t) =>
+        t.title === nowPlaying.track.title && t.artist === nowPlaying.track.artist,
+    );
+
+    if (currentTrackIndex === -1) return;
+
+    // Get next track
+    const nextTrackIndex = currentTrackIndex + 1;
+    if (nextTrackIndex >= tracks.length) {
+      // If at the end, loop to beginning
+      const firstTrack = tracks[0];
+      if (firstTrack && "offset" in firstTrack) {
+        const result = await seekChannel(channel.id, firstTrack.offset);
+        if (result.type === "left") {
+          console.error("Failed to seek to next track:", result.left);
+        }
+      }
+    } else {
+      const nextTrack = tracks[nextTrackIndex];
+      if (nextTrack && "offset" in nextTrack) {
+        const result = await seekChannel(channel.id, nextTrack.offset);
+        if (result.type === "left") {
+          console.error("Failed to seek to next track:", result.left);
+        }
+      }
+    }
+  }, [channel.id, nowPlaying, tracks]);
+
+  const handlePrev = useCallback(async () => {
+    if (!nowPlaying) return;
+
+    // Find current track in the tracks list
+    const currentTrackIndex = tracks.findIndex(
+      (t) =>
+        t.title === nowPlaying.track.title && t.artist === nowPlaying.track.artist,
+    );
+
+    if (currentTrackIndex === -1) return;
+
+    // Get previous track
+    const prevTrackIndex = currentTrackIndex - 1;
+    if (prevTrackIndex < 0) {
+      // If at the beginning, loop to end
+      const lastTrack = tracks[tracks.length - 1];
+      if (lastTrack && "offset" in lastTrack) {
+        const result = await seekChannel(channel.id, lastTrack.offset);
+        if (result.type === "left") {
+          console.error("Failed to seek to previous track:", result.left);
+        }
+      }
+    } else {
+      const prevTrack = tracks[prevTrackIndex];
+      if (prevTrack && "offset" in prevTrack) {
+        const result = await seekChannel(channel.id, prevTrack.offset);
+        if (result.type === "left") {
+          console.error("Failed to seek to previous track:", result.left);
+        }
+      }
+    }
+  }, [channel.id, nowPlaying, tracks]);
+
   return (
     <Channel
       channel={channel}
@@ -121,6 +220,10 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
       isLoading={isLoading}
       userId={userId}
       onSeek={handleSeek}
+      onPlay={handlePlay}
+      onPause={handlePause}
+      onNext={handleNext}
+      onPrev={handlePrev}
     />
   );
 };
