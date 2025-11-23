@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject } from "react";
+import React, { useRef, useEffect } from "react";
 import Image from "next/image";
 import { ChannelResponse, ChannelTrack } from "@/app/actions";
 import { getStatusColor } from "@/common/status-color";
@@ -14,7 +14,7 @@ interface ChannelProps {
   readonly placeholderCount: number;
   readonly trackHeight: number;
   readonly nowPlaying: { track: ChannelTrack; position: number } | null;
-  readonly observerTarget: RefObject<HTMLDivElement>;
+  readonly hasMore: boolean;
   readonly isLoading: boolean;
   readonly userId: number;
   readonly onSeek: (offset: number) => void;
@@ -22,6 +22,7 @@ interface ChannelProps {
   readonly onPause: () => void;
   readonly onNext: () => void;
   readonly onPrev: () => void;
+  readonly onLoadMore: () => void;
 }
 
 const formatDuration = (seconds: number): string => {
@@ -36,7 +37,7 @@ export const Channel: React.FC<ChannelProps> = ({
   placeholderCount,
   trackHeight,
   nowPlaying,
-  observerTarget,
+  hasMore,
   isLoading,
   userId,
   onSeek,
@@ -44,7 +45,37 @@ export const Channel: React.FC<ChannelProps> = ({
   onPause,
   onNext,
   onPrev,
+  onLoadMore,
 }) => {
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!hasMore || isLoading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasMore && !isLoading) {
+          onLoadMore();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "200px", // Trigger 200px before the target is visible
+      },
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, isLoading, onLoadMore]);
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="md:grid md:grid-cols-2 md:h-screen flex flex-col md:flex-row">
@@ -53,7 +84,11 @@ export const Channel: React.FC<ChannelProps> = ({
           <div className="p-6 space-y-6">
             {/* Channel Preview */}
             <div className="-mx-6 -mt-6">
-              <ChannelPreview channelId={channel.id} channelStatus={channel.status} userId={userId} />
+              <ChannelPreview
+                channelId={channel.id}
+                channelStatus={channel.status}
+                userId={userId}
+              />
             </div>
 
             {/* Player Controls Panel */}
@@ -152,7 +187,8 @@ export const Channel: React.FC<ChannelProps> = ({
                       withProgressing={channel.status === "Started"}
                       onSeek={(position) => {
                         // Calculate offset: current track offset + position within track
-                        const trackOffset = "offset" in nowPlaying.track ? nowPlaying.track.offset : 0;
+                        const trackOffset =
+                          "offset" in nowPlaying.track ? nowPlaying.track.offset : 0;
                         onSeek(trackOffset + position);
                       }}
                     />
@@ -277,4 +313,3 @@ export const Channel: React.FC<ChannelProps> = ({
     </div>
   );
 };
-

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { Channel } from "./Channel";
 import {
   ChannelResponse,
@@ -29,7 +29,6 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
   const [tracks, setTracks] = useState<ChannelTrack[]>(initialTracks);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialTracks.length < channel.totalTrackCount);
-  const observerTarget = useRef<HTMLDivElement>(null);
 
   // Use the shared hook for now playing data
   const nowPlayingData = useNowPlaying(channel.id);
@@ -52,32 +51,6 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
       setIsLoading(false);
     }
   }, [channel.id, channel.totalTrackCount, tracks.length, isLoading, hasMore]);
-
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasMore && !isLoading) {
-          loadMoreTracks();
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "200px", // Trigger 200px before the target is visible
-      },
-    );
-
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [hasMore, isLoading, loadMoreTracks]);
 
   // Map now playing data to match tracks from our list
   const nowPlaying = (() => {
@@ -148,8 +121,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
 
     // Find current track in the tracks list
     const currentTrackIndex = tracks.findIndex(
-      (t) =>
-        t.title === nowPlaying.track.title && t.artist === nowPlaying.track.artist,
+      (t) => t.title === nowPlaying.track.title && t.artist === nowPlaying.track.artist,
     );
 
     if (currentTrackIndex === -1) return;
@@ -181,8 +153,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
 
     // Find current track in the tracks list
     const currentTrackIndex = tracks.findIndex(
-      (t) =>
-        t.title === nowPlaying.track.title && t.artist === nowPlaying.track.artist,
+      (t) => t.title === nowPlaying.track.title && t.artist === nowPlaying.track.artist,
     );
 
     if (currentTrackIndex === -1) return;
@@ -216,7 +187,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
       placeholderCount={placeholderCount}
       trackHeight={TRACK_HEIGHT}
       nowPlaying={nowPlaying}
-      observerTarget={observerTarget}
+      hasMore={hasMore}
       isLoading={isLoading}
       userId={userId}
       onSeek={handleSeek}
@@ -224,7 +195,7 @@ export const ChannelContainer: React.FC<ChannelContainerProps> = ({
       onPause={handlePause}
       onNext={handleNext}
       onPrev={handlePrev}
+      onLoadMore={loadMoreTracks}
     />
   );
 };
-

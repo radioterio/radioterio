@@ -33,10 +33,14 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user, channe
   if (user.type === "left" || channels.type === "left") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-lg border border-gray-200 px-8 py-10 w-full max-w-md flex flex-col items-center">
-        <div className="text-red-600 font-semibold mb-2">Error</div>
-        <pre className="text-xs text-gray-500 whitespace-pre-wrap">
-            {JSON.stringify(user.type === "left" ? user.left : channels.left, null, 2)}
+        <div className="bg-white rounded-lg border border-gray-200 px-8 py-10 w-full max-w-md flex flex-col items-center">
+          <div className="text-red-600 font-semibold mb-2">Error</div>
+          <pre className="text-xs text-gray-500 whitespace-pre-wrap">
+            {JSON.stringify(
+              user.type === "left" ? user.left : channels.type === "left" ? channels.left : null,
+              null,
+              2,
+            )}
           </pre>
         </div>
       </div>
@@ -56,12 +60,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({ user, channe
             <div className="flex justify-center">
               {avatarFileUrl ? (
                 <div className="relative w-48 h-48 rounded-lg overflow-hidden">
-                  <Image
-                    src={avatarFileUrl}
-                    alt="avatar"
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={avatarFileUrl} alt="avatar" fill className="object-cover" />
                 </div>
               ) : (
                 <div className="w-48 h-48 rounded-lg flex items-center justify-center text-gray-400 bg-gray-50">
